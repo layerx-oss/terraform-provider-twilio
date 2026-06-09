@@ -30,7 +30,7 @@ func main() {
 
 	if debugMode {
 		opts.Debug = debugMode
-		opts.ProviderAddr = "registry.terraform.io/twilio/twilio"
+		opts.ProviderAddr = "registry.terraform.io/layerx/twilio"
 	}
 
 	plugin.Serve(opts)
