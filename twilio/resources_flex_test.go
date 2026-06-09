@@ -20,9 +20,10 @@ func TestAccFlexSetup_basic(t *testing.T) {
 	studioFlowName := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
 	flexName := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
 
+	setupMockProvider(t)
+
 	resource.Test(t, resource.TestCase{
-		IsUnitTest:                false,
-		PreCheck:                  func() { testAccPreCheck(t) },
+		IsUnitTest:                true,
 		ProviderFactories:         testAccProviderFactories,
 		PreventPostDestroyRefresh: false,
 		CheckDestroy:              testAccFlexInstanceDestroy,
