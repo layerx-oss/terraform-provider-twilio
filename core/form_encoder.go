@@ -45,9 +45,9 @@ func processParamValue(paramType string, form *url.Values, field reflect.StructF
 		form.Add(name, value.String())
 
 	case reflect.Slice:
-		for i := 0; i < value.Len(); i++ {
+		for i := range value.Len() {
 			if err := processParamValue(paramType, form, field, value.Index(i)); err != nil {
-				return nil
+				return err
 			}
 		}
 
@@ -62,7 +62,7 @@ func processParamValue(paramType string, form *url.Values, field reflect.StructF
 		if basic, ok := value.Interface().(DecoratedBasicTypeGetterInterface); ok {
 			if value, ok := basic.GetNativePresentation(); ok {
 				if err := processParamValue(paramType, form, field, reflect.ValueOf(value)); err != nil {
-					return nil
+					return err
 				}
 			}
 		} else if opts.Contains("flatten") {
