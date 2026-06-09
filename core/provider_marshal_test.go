@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestTagNaming(t *testing.T) {
@@ -24,52 +23,116 @@ func TestTagNaming(t *testing.T) {
 	var tag tagInfo
 	field, _ = reflect.TypeOf(innerStruct{}).FieldByName("T1")
 	tag = getNameFromTag(field)
-	assert.Equal(t, tag.name, "t1", "wrong name")
-	assert.Equal(t, tag.isId, false, "Id set")
-	assert.Equal(t, tag.flatten, false, "Flatten set")
-	assert.Equal(t, tag.ignore, false, "ignore set")
+	if tag.name != "t1" {
+		t.Errorf("wrong name: got %q, want %q", tag.name, "t1")
+	}
+	if tag.isId {
+		t.Error("Id set")
+	}
+	if tag.flatten {
+		t.Error("Flatten set")
+	}
+	if tag.ignore {
+		t.Error("ignore set")
+	}
 	field, _ = reflect.TypeOf(innerStruct{}).FieldByName("T2")
 	tag = getNameFromTag(field)
-	assert.Equal(t, tag.name, "T2", "wrong name")
-	assert.Equal(t, tag.isId, false, "Id set")
-	assert.Equal(t, tag.flatten, false, "Flatten set")
-	assert.Equal(t, tag.ignore, false, "ignore set")
+	if tag.name != "T2" {
+		t.Errorf("wrong name: got %q, want %q", tag.name, "T2")
+	}
+	if tag.isId {
+		t.Error("Id set")
+	}
+	if tag.flatten {
+		t.Error("Flatten set")
+	}
+	if tag.ignore {
+		t.Error("ignore set")
+	}
 	field, _ = reflect.TypeOf(innerStruct{}).FieldByName("T3")
 	tag = getNameFromTag(field)
-	assert.Equal(t, tag.name, "t3b", "wrong name")
-	assert.Equal(t, tag.isId, false, "Id set")
-	assert.Equal(t, tag.flatten, false, "Flatten set")
-	assert.Equal(t, tag.ignore, false, "ignore set")
+	if tag.name != "t3b" {
+		t.Errorf("wrong name: got %q, want %q", tag.name, "t3b")
+	}
+	if tag.isId {
+		t.Error("Id set")
+	}
+	if tag.flatten {
+		t.Error("Flatten set")
+	}
+	if tag.ignore {
+		t.Error("ignore set")
+	}
 	field, _ = reflect.TypeOf(innerStruct{}).FieldByName("T4")
 	tag = getNameFromTag(field)
-	assert.Equal(t, tag.name, "t4", "wrong name")
-	assert.Equal(t, tag.isId, false, "Id set")
-	assert.Equal(t, tag.flatten, false, "Flatten set")
-	assert.Equal(t, tag.ignore, false, "ignore set")
+	if tag.name != "t4" {
+		t.Errorf("wrong name: got %q, want %q", tag.name, "t4")
+	}
+	if tag.isId {
+		t.Error("Id set")
+	}
+	if tag.flatten {
+		t.Error("Flatten set")
+	}
+	if tag.ignore {
+		t.Error("ignore set")
+	}
 	field, _ = reflect.TypeOf(innerStruct{}).FieldByName("T5")
 	tag = getNameFromTag(field)
-	assert.Equal(t, tag.name, "t5", "wrong name")
-	assert.Equal(t, tag.isId, true, "Id not set")
-	assert.Equal(t, tag.flatten, false, "Flatten set")
-	assert.Equal(t, tag.ignore, false, "ignore set")
+	if tag.name != "t5" {
+		t.Errorf("wrong name: got %q, want %q", tag.name, "t5")
+	}
+	if !tag.isId {
+		t.Error("Id not set")
+	}
+	if tag.flatten {
+		t.Error("Flatten set")
+	}
+	if tag.ignore {
+		t.Error("ignore set")
+	}
 	field, _ = reflect.TypeOf(innerStruct{}).FieldByName("T6")
 	tag = getNameFromTag(field)
-	assert.Equal(t, tag.name, "T6", "wrong name")
-	assert.Equal(t, tag.isId, true, "Id not set")
-	assert.Equal(t, tag.flatten, false, "Flatten set")
-	assert.Equal(t, tag.ignore, false, "ignore set")
+	if tag.name != "T6" {
+		t.Errorf("wrong name: got %q, want %q", tag.name, "T6")
+	}
+	if !tag.isId {
+		t.Error("Id not set")
+	}
+	if tag.flatten {
+		t.Error("Flatten set")
+	}
+	if tag.ignore {
+		t.Error("ignore set")
+	}
 	field, _ = reflect.TypeOf(innerStruct{}).FieldByName("T7")
 	tag = getNameFromTag(field)
-	assert.Equal(t, tag.name, "T7", "wrong name")
-	assert.Equal(t, tag.isId, false, "Id set")
-	assert.Equal(t, tag.flatten, false, "Flatten set")
-	assert.Equal(t, tag.ignore, true, "ignore not set")
+	if tag.name != "T7" {
+		t.Errorf("wrong name: got %q, want %q", tag.name, "T7")
+	}
+	if tag.isId {
+		t.Error("Id set")
+	}
+	if tag.flatten {
+		t.Error("Flatten set")
+	}
+	if !tag.ignore {
+		t.Error("ignore not set")
+	}
 	field, _ = reflect.TypeOf(innerStruct{}).FieldByName("T8")
 	tag = getNameFromTag(field)
-	assert.Equal(t, tag.name, "T8", "wrong name")
-	assert.Equal(t, tag.isId, false, "Id set")
-	assert.Equal(t, tag.flatten, true, "Flatten not set")
-	assert.Equal(t, tag.ignore, false, "ignore set")
+	if tag.name != "T8" {
+		t.Errorf("wrong name: got %q, want %q", tag.name, "T8")
+	}
+	if tag.isId {
+		t.Error("Id set")
+	}
+	if !tag.flatten {
+		t.Error("Flatten not set")
+	}
+	if tag.ignore {
+		t.Error("ignore set")
+	}
 }
 
 func TestSimpleUnmarshal(t *testing.T) {
@@ -109,10 +172,18 @@ func TestSimpleUnmarshal(t *testing.T) {
 	if err := UnmarshalSchema(&testStruct, resourceData); err != nil {
 		t.Errorf("Unmarshall failed: result '%v'", err)
 	}
-	assert.Equal(t, testStruct.T1, true, "T1 did not unmarshal")
-	assert.Equal(t, testStruct.T2, 1, "T2 did not unmarshal")
-	assert.Equal(t, testStruct.T3, "t3", "T3 did not unmarshal")
-	assert.Nil(t, testStruct.T4, "T4 should be nil")
+	if testStruct.T1 != true {
+		t.Error("T1 did not unmarshal")
+	}
+	if testStruct.T2 != 1 {
+		t.Error("T2 did not unmarshal")
+	}
+	if testStruct.T3 != "t3" {
+		t.Error("T3 did not unmarshal")
+	}
+	if testStruct.T4 != nil {
+		t.Error("T4 should be nil")
+	}
 }
 
 func TestComplexUnmarshal(t *testing.T) {
@@ -175,16 +246,36 @@ func TestComplexUnmarshal(t *testing.T) {
 	if err := UnmarshalSchema(&testStruct, resourceData); err != nil {
 		t.Errorf("Unmarshall failed: result '%v'", err)
 	}
-	assert.Equal(t, *testStruct.T0, "t0", "T0 did not unmarshal")
-	assert.Equal(t, testStruct.T1.String(), "AC00112233445566778899aabbccddeeff", "T1 did not unmarshal")
-	assert.Equal(t, len(testStruct.T2), 2, "T2 did not unmarshal")
-	assert.Equal(t, testStruct.T2[0], "t2a", "T2 did not unmarshal")
-	assert.Equal(t, testStruct.T2[1], "t2b", "T2 did not unmarshal")
-	assert.Equal(t, *testStruct.T3, "t3", "T3 did not unmarshal")
-	assert.Equal(t, *testStruct.T4, 1, "T4 did not unmarshal")
-	assert.Equal(t, *testStruct.T5, 1.0, "T5 did not unmarshal")
-	assert.Equal(t, testStruct.T6.String(), "AC00112233445566778899aabbccddeeff", "T6 did not unmarshal")
-	assert.Nil(t, testStruct.T7, "T7 did not unmarshal")
+	if *testStruct.T0 != "t0" {
+		t.Error("T0 did not unmarshal")
+	}
+	if testStruct.T1.String() != "AC00112233445566778899aabbccddeeff" {
+		t.Error("T1 did not unmarshal")
+	}
+	if len(testStruct.T2) != 2 {
+		t.Error("T2 did not unmarshal")
+	}
+	if testStruct.T2[0] != "t2a" {
+		t.Error("T2 did not unmarshal")
+	}
+	if testStruct.T2[1] != "t2b" {
+		t.Error("T2 did not unmarshal")
+	}
+	if *testStruct.T3 != "t3" {
+		t.Error("T3 did not unmarshal")
+	}
+	if *testStruct.T4 != 1 {
+		t.Error("T4 did not unmarshal")
+	}
+	if *testStruct.T5 != 1.0 {
+		t.Error("T5 did not unmarshal")
+	}
+	if testStruct.T6.String() != "AC00112233445566778899aabbccddeeff" {
+		t.Error("T6 did not unmarshal")
+	}
+	if testStruct.T7 != nil {
+		t.Error("T7 did not unmarshal")
+	}
 }
 
 func TestBoolUnmarshal(t *testing.T) {
@@ -217,8 +308,12 @@ func TestBoolUnmarshal(t *testing.T) {
 		t.Errorf("Unmarshall failed: result '%v'", err)
 	}
 
-	assert.Equal(t, false, *testStruct.LookupEnabled, "LookupEnabled did not unmarshal")
-	assert.Equal(t, false, *testStruct.CustomCodeEnabled, "CustomCodeEnabled did not unmarshal")
+	if *testStruct.LookupEnabled != false {
+		t.Error("LookupEnabled did not unmarshal")
+	}
+	if *testStruct.CustomCodeEnabled != false {
+		t.Error("CustomCodeEnabled did not unmarshal")
+	}
 }
 
 func TestTimeUnMarshal(t *testing.T) {
@@ -243,8 +338,12 @@ func TestTimeUnMarshal(t *testing.T) {
 		t.Errorf("Unmarshall failed: result '%v'", err)
 	}
 
-	assert.Nil(t, err, "Date T0 did not unmarshal")
-	assert.Equal(t, resourceData.Get("T0"), "2021-05-17T01:35:33Z", "Date T0 did not unmarshal")
+	if err != nil {
+		t.Errorf("Date T0 did not unmarshal: %v", err)
+	}
+	if resourceData.Get("T0") != "2021-05-17T01:35:33Z" {
+		t.Error("Date T0 did not unmarshal")
+	}
 }
 
 func TestUnmarshalNilValueToPointer(t *testing.T) {
@@ -276,8 +375,12 @@ func TestUnmarshalNilValueToPointer(t *testing.T) {
 	if err := UnmarshalSchema(&testStruct, resourceData); err != nil {
 		t.Errorf("Unmarshall failed: result '%v'", err)
 	}
-	assert.Nil(t, testStruct.T1, "T1 did not unmarshal")
-	assert.Nil(t, testStruct.T2, "T2 did not unmarshal")
+	if testStruct.T1 != nil {
+		t.Error("T1 did not unmarshal")
+	}
+	if testStruct.T2 != nil {
+		t.Error("T2 did not unmarshal")
+	}
 }
 
 func TestFlattenUnmarshal(t *testing.T) {
@@ -312,9 +415,15 @@ func TestFlattenUnmarshal(t *testing.T) {
 	if err := UnmarshalSchema(&testStruct, resourceData); err != nil {
 		t.Errorf("Unmarshall failed: result '%v'", err)
 	}
-	assert.Equal(t, *testStruct.T0, "t0", "T0 did not unmarshal")
-	assert.Equal(t, testStruct.Nested.T1, "t1", "T1 did not unmarshal")
-	assert.Equal(t, testStruct.Nested.T2, "t2", "T2 did not unmarshal")
+	if *testStruct.T0 != "t0" {
+		t.Error("T0 did not unmarshal")
+	}
+	if testStruct.Nested.T1 != "t1" {
+		t.Error("T1 did not unmarshal")
+	}
+	if testStruct.Nested.T2 != "t2" {
+		t.Error("T2 did not unmarshal")
+	}
 }
 
 func TestListUnmarshal(t *testing.T) {
@@ -358,11 +467,21 @@ func TestListUnmarshal(t *testing.T) {
 	if err := UnmarshalSchema(&testStruct, resourceData); err != nil {
 		t.Errorf("Unmarshall failed: result '%v'", err)
 	}
-	assert.Equal(t, len(testStruct.T1), 2, "T1 did not unmarshal")
-	assert.Equal(t, testStruct.T1[0].T1a, "r1", "T1 did not unmarshal")
-	assert.Equal(t, testStruct.T1[0].T1b, "r2", "T1 did not unmarshal")
-	assert.Equal(t, testStruct.T1[1].T1a, "r3", "T1 did not unmarshal")
-	assert.Equal(t, testStruct.T1[1].T1b, "r4", "T1 did not unmarshal")
+	if len(testStruct.T1) != 2 {
+		t.Error("T1 did not unmarshal")
+	}
+	if testStruct.T1[0].T1a != "r1" {
+		t.Error("T1 did not unmarshal")
+	}
+	if testStruct.T1[0].T1b != "r2" {
+		t.Error("T1 did not unmarshal")
+	}
+	if testStruct.T1[1].T1a != "r3" {
+		t.Error("T1 did not unmarshal")
+	}
+	if testStruct.T1[1].T1b != "r4" {
+		t.Error("T1 did not unmarshal")
+	}
 }
 
 func TestSidListUnmarshal(t *testing.T) {
@@ -387,9 +506,15 @@ func TestSidListUnmarshal(t *testing.T) {
 	if err := UnmarshalSchema(&testStruct, resourceData); err != nil {
 		t.Errorf("Unmarshall failed: result '%v'", err)
 	}
-	assert.Equal(t, len(testStruct.T1), 2, "T1 did not unmarshal")
-	assert.Equal(t, testStruct.T1[0].String(), "AC00112233445566778899aabbccddeefe", "T1 did not unmarshal")
-	assert.Equal(t, testStruct.T1[1].String(), "AC00112233445566778899aabbccddeeff", "T1 did not unmarshal")
+	if len(testStruct.T1) != 2 {
+		t.Error("T1 did not unmarshal")
+	}
+	if testStruct.T1[0].String() != "AC00112233445566778899aabbccddeefe" {
+		t.Error("T1 did not unmarshal")
+	}
+	if testStruct.T1[1].String() != "AC00112233445566778899aabbccddeeff" {
+		t.Error("T1 did not unmarshal")
+	}
 }
 
 func TestMapUnmarshal(t *testing.T) {
@@ -414,9 +539,15 @@ func TestMapUnmarshal(t *testing.T) {
 	if err := UnmarshalSchema(&testStruct, resourceData); err != nil {
 		t.Errorf("Unmarshall failed: result '%v'", err)
 	}
-	assert.Equal(t, len(testStruct.T1), 2, "T1 did not unmarshal")
-	assert.Equal(t, testStruct.T1["T1a"], "r1", "T1 did not unmarshal")
-	assert.Equal(t, testStruct.T1["T1b"], "r2", "T1 did not unmarshal")
+	if len(testStruct.T1) != 2 {
+		t.Error("T1 did not unmarshal")
+	}
+	if testStruct.T1["T1a"] != "r1" {
+		t.Error("T1 did not unmarshal")
+	}
+	if testStruct.T1["T1b"] != "r2" {
+		t.Error("T1 did not unmarshal")
+	}
 }
 
 func TestSidMapUnmarshal(t *testing.T) {
@@ -441,9 +572,15 @@ func TestSidMapUnmarshal(t *testing.T) {
 	if err := UnmarshalSchema(&testStruct, resourceData); err != nil {
 		t.Errorf("Unmarshall failed: result '%v'", err)
 	}
-	assert.Equal(t, len(testStruct.T1), 2, "T1 did not unmarshal")
-	assert.Equal(t, testStruct.T1["T1a"].String(), "AC00112233445566778899aabbccddeefe", "T1 did not unmarshal")
-	assert.Equal(t, testStruct.T1["T1b"].String(), "AC00112233445566778899aabbccddeeff", "T1 did not unmarshal")
+	if len(testStruct.T1) != 2 {
+		t.Error("T1 did not unmarshal")
+	}
+	if testStruct.T1["T1a"].String() != "AC00112233445566778899aabbccddeefe" {
+		t.Error("T1 did not unmarshal")
+	}
+	if testStruct.T1["T1b"].String() != "AC00112233445566778899aabbccddeeff" {
+		t.Error("T1 did not unmarshal")
+	}
 }
 
 func TestComplexMapUnmarshal(t *testing.T) {
@@ -472,11 +609,21 @@ func TestComplexMapUnmarshal(t *testing.T) {
 	if err := UnmarshalSchema(&testStruct, resourceData); err != nil {
 		t.Errorf("Unmarshall failed: result '%v'", err)
 	}
-	assert.Equal(t, len(testStruct.T1), 2, "T1 did not unmarshal")
-	assert.Equal(t, testStruct.T1["M0"].T1a, "r1", "T1 did not unmarshal")
-	assert.Equal(t, testStruct.T1["M0"].T1b, true, "T1 did not unmarshal")
-	assert.Equal(t, testStruct.T1["M1"].T1a, "r2", "T1 did not unmarshal")
-	assert.Equal(t, testStruct.T1["M1"].T1b, false, "T1 did not unmarshal")
+	if len(testStruct.T1) != 2 {
+		t.Error("T1 did not unmarshal")
+	}
+	if testStruct.T1["M0"].T1a != "r1" {
+		t.Error("T1 did not unmarshal")
+	}
+	if testStruct.T1["M0"].T1b != true {
+		t.Error("T1 did not unmarshal")
+	}
+	if testStruct.T1["M1"].T1a != "r2" {
+		t.Error("T1 did not unmarshal")
+	}
+	if testStruct.T1["M1"].T1b != false {
+		t.Error("T1 did not unmarshal")
+	}
 }
 
 func TestPureJsonUnmarshal(t *testing.T) {
@@ -499,7 +646,9 @@ func TestPureJsonUnmarshal(t *testing.T) {
 	if err := UnmarshalSchema(&testStruct, resourceData); err != nil {
 		t.Errorf("Unmarshall failed: result '%v'", err)
 	}
-	assert.Equal(t, testStruct.T1.(map[string]interface{})["test"], "test_value", "T1 did not unmarshal")
+	if testStruct.T1.(map[string]interface{})["test"] != "test_value" {
+		t.Error("T1 did not unmarshal")
+	}
 }
 
 func TestJsonEncodedNilUnMarshal(t *testing.T) {
@@ -520,7 +669,9 @@ func TestJsonEncodedNilUnMarshal(t *testing.T) {
 	if err := UnmarshalSchema(&testStruct, resourceData); err != nil {
 		t.Errorf("Unmarshall failed: result '%v'", err)
 	}
-	assert.Nil(t, testStruct.T1, "T2 did not unmarshal")
+	if testStruct.T1 != nil {
+		t.Error("T2 did not unmarshal")
+	}
 }
 
 func TestOptionalFlattenUnmarshal(t *testing.T) {
@@ -552,9 +703,15 @@ func TestOptionalFlattenUnmarshal(t *testing.T) {
 	if err := UnmarshalSchema(&testStruct, resourceData); err != nil {
 		t.Errorf("Unmarshall failed: result '%v'", err)
 	}
-	assert.Equal(t, *testStruct.T0, "t0", "T0 did not unmarshal")
-	assert.Nil(t, testStruct.Nested.T1, "T1 did not unmarshal")
-	assert.Nil(t, testStruct.Nested.T2, "T2 did not unmarshal")
+	if *testStruct.T0 != "t0" {
+		t.Error("T0 did not unmarshal")
+	}
+	if testStruct.Nested.T1 != nil {
+		t.Error("T1 did not unmarshal")
+	}
+	if testStruct.Nested.T2 != nil {
+		t.Error("T2 did not unmarshal")
+	}
 }
 
 func TestSimpleMarshal(t *testing.T) {
@@ -601,13 +758,27 @@ func TestSimpleMarshal(t *testing.T) {
 	if err := MarshalSchema(resourceData, &testStruct); err != nil {
 		t.Errorf("Marshall failed: result '%v'", err)
 	}
-	assert.Equal(t, resourceData.Id(), "t0", "Id did not marshal")
-	assert.Equal(t, resourceData.Get("T1"), true, "T1 did not marshal")
-	assert.Equal(t, resourceData.Get("T2"), 1, "T2 did not marshal")
-	assert.Equal(t, resourceData.Get("T3"), "t3", "T3 did not marshal")
-	assert.Equal(t, 0, resourceData.Get("T4"), "T4 did not marshal")
-	assert.Equal(t, "", resourceData.Get("T5"), "T4 did not marshal")
-	assert.Equal(t, "", resourceData.Get("T6"), "T4 did not marshal")
+	if resourceData.Id() != "t0" {
+		t.Error("Id did not marshal")
+	}
+	if resourceData.Get("T1") != true {
+		t.Error("T1 did not marshal")
+	}
+	if resourceData.Get("T2") != 1 {
+		t.Error("T2 did not marshal")
+	}
+	if resourceData.Get("T3") != "t3" {
+		t.Error("T3 did not marshal")
+	}
+	if resourceData.Get("T4") != 0 {
+		t.Error("T4 did not marshal")
+	}
+	if resourceData.Get("T5") != "" {
+		t.Error("T5 did not marshal")
+	}
+	if resourceData.Get("T6") != "" {
+		t.Error("T6 did not marshal")
+	}
 }
 
 func TestComplexMarshal(t *testing.T) {
@@ -653,13 +824,27 @@ func TestComplexMarshal(t *testing.T) {
 	if err := MarshalSchema(resourceData, &testStruct); err != nil {
 		t.Errorf("Marshall failed: result '%v'", err)
 	}
-	assert.Equal(t, resourceData.Id(), "t0", "Id did not marshal")
-	assert.Equal(t, resourceData.Get("T1"), "AC00112233445566778899aabbccddeeff", "T1 did not marshal")
-	assert.Equal(t, len(resourceData.Get("T2").([]interface{})), 2, "T2 did not unmarshal")
-	assert.Equal(t, resourceData.Get("T2.0"), "t2a", "T2 did not unmarshal")
-	assert.Equal(t, resourceData.Get("T2.1"), "t2b", "T2 did not unmarshal")
-	assert.Equal(t, resourceData.Get("T3"), "2010-04-01", "T3 did not marshal")
-	assert.Equal(t, resourceData.Get("T4"), 1, "T4 did not marshal")
+	if resourceData.Id() != "t0" {
+		t.Error("Id did not marshal")
+	}
+	if resourceData.Get("T1") != "AC00112233445566778899aabbccddeeff" {
+		t.Error("T1 did not marshal")
+	}
+	if len(resourceData.Get("T2").([]interface{})) != 2 {
+		t.Error("T2 did not unmarshal")
+	}
+	if resourceData.Get("T2.0") != "t2a" {
+		t.Error("T2 did not unmarshal")
+	}
+	if resourceData.Get("T2.1") != "t2b" {
+		t.Error("T2 did not unmarshal")
+	}
+	if resourceData.Get("T3") != "2010-04-01" {
+		t.Error("T3 did not marshal")
+	}
+	if resourceData.Get("T4") != 1 {
+		t.Error("T4 did not marshal")
+	}
 }
 
 func TestObjectMarshal(t *testing.T) {
@@ -704,9 +889,15 @@ func TestObjectMarshal(t *testing.T) {
 		t.Errorf("Marshall failed: result '%v'", err)
 	}
 
-	assert.Equal(t, resourceData.Get("Links"), "{\"executions\":\"https://studio.twilio.com/v2/Flows/FWXX/Executions\",\"revisions\":\"https://studio.twilio.com/v2/Flows/FWXX/Revisions\",\"test_users\":\"https://studio.twilio.com/v2/Flows/FWXX/TestUsers\"}")
-	assert.Equal(t, resourceData.Get("Errors.0"), "{\"message\":\"some message\",\"property_path\":\"some property path\"}")
-	assert.Equal(t, resourceData.Get("Errors.1"), "{\"message\":\"some message 2\",\"property_path\":\"some property path 2\"}")
+	if resourceData.Get("Links") != "{\"executions\":\"https://studio.twilio.com/v2/Flows/FWXX/Executions\",\"revisions\":\"https://studio.twilio.com/v2/Flows/FWXX/Revisions\",\"test_users\":\"https://studio.twilio.com/v2/Flows/FWXX/TestUsers\"}" {
+		t.Error("Links did not marshal")
+	}
+	if resourceData.Get("Errors.0") != "{\"message\":\"some message\",\"property_path\":\"some property path\"}" {
+		t.Error("Errors.0 did not marshal")
+	}
+	if resourceData.Get("Errors.1") != "{\"message\":\"some message 2\",\"property_path\":\"some property path 2\"}" {
+		t.Error("Errors.1 did not marshal")
+	}
 }
 
 func TestTimeMarshal(t *testing.T) {
@@ -730,7 +921,9 @@ func TestTimeMarshal(t *testing.T) {
 	if err := MarshalSchema(resourceData, &testStruct); err != nil {
 		t.Errorf("Marshall failed: result '%v'", err)
 	}
-	assert.Equal(t, resourceData.Get("T0"), "2021-05-17T01:35:33Z", "Date T0 did not marshal")
+	if resourceData.Get("T0") != "2021-05-17T01:35:33Z" {
+		t.Error("Date T0 did not marshal")
+	}
 }
 
 func TestFlattenMarshal(t *testing.T) {
@@ -764,9 +957,15 @@ func TestFlattenMarshal(t *testing.T) {
 	if err := MarshalSchema(resourceData, &testStruct); err != nil {
 		t.Errorf("Marshall failed: result '%v'", err)
 	}
-	assert.Equal(t, resourceData.Id(), "t0", "Id did not marshal")
-	assert.Equal(t, resourceData.Get("T1"), "t1", "T1 did not marshal")
-	assert.Equal(t, resourceData.Get("T2"), "t2", "T2 did not marshal")
+	if resourceData.Id() != "t0" {
+		t.Error("Id did not marshal")
+	}
+	if resourceData.Get("T1") != "t1" {
+		t.Error("T1 did not marshal")
+	}
+	if resourceData.Get("T2") != "t2" {
+		t.Error("T2 did not marshal")
+	}
 }
 
 func TestListMarshal(t *testing.T) {
@@ -804,11 +1003,21 @@ func TestListMarshal(t *testing.T) {
 	if err := MarshalSchema(resourceData, &testStruct); err != nil {
 		t.Errorf("Marshall failed: result '%v'", err)
 	}
-	assert.Equal(t, len(resourceData.Get("T1").([]interface{})), 2, "T1 did not unmarshal")
-	assert.Equal(t, resourceData.Get("T1.0.T1a"), "r1", "T1 did not unmarshal")
-	assert.Equal(t, resourceData.Get("T1.0.T1b"), "r2", "T1 did not unmarshal")
-	assert.Equal(t, resourceData.Get("T1.1.T1a"), "r3", "T1 did not unmarshal")
-	assert.Equal(t, resourceData.Get("T1.1.T1b"), "r4", "T1 did not unmarshal")
+	if len(resourceData.Get("T1").([]interface{})) != 2 {
+		t.Error("T1 did not unmarshal")
+	}
+	if resourceData.Get("T1.0.T1a") != "r1" {
+		t.Error("T1 did not unmarshal")
+	}
+	if resourceData.Get("T1.0.T1b") != "r2" {
+		t.Error("T1 did not unmarshal")
+	}
+	if resourceData.Get("T1.1.T1a") != "r3" {
+		t.Error("T1 did not unmarshal")
+	}
+	if resourceData.Get("T1.1.T1b") != "r4" {
+		t.Error("T1 did not unmarshal")
+	}
 }
 
 func TestSidListMarshal(t *testing.T) {
@@ -833,9 +1042,15 @@ func TestSidListMarshal(t *testing.T) {
 	if err := MarshalSchema(resourceData, &testStruct); err != nil {
 		t.Errorf("Marshall failed: result '%v'", err)
 	}
-	assert.Equal(t, len(resourceData.Get("T1").([]interface{})), 2, "T1 did not unmarshal")
-	assert.Equal(t, resourceData.Get("T1.0"), "AC00112233445566778899aabbccddeefe", "T1 did not unmarshal")
-	assert.Equal(t, resourceData.Get("T1.1"), "AC00112233445566778899aabbccddeeff", "T1 did not unmarshal")
+	if len(resourceData.Get("T1").([]interface{})) != 2 {
+		t.Error("T1 did not unmarshal")
+	}
+	if resourceData.Get("T1.0") != "AC00112233445566778899aabbccddeefe" {
+		t.Error("T1 did not unmarshal")
+	}
+	if resourceData.Get("T1.1") != "AC00112233445566778899aabbccddeeff" {
+		t.Error("T1 did not unmarshal")
+	}
 }
 
 func TestMapMarshal(t *testing.T) {
@@ -857,9 +1072,15 @@ func TestMapMarshal(t *testing.T) {
 	if err := MarshalSchema(resourceData, &testStruct); err != nil {
 		t.Errorf("Marshall failed: result '%v'", err)
 	}
-	assert.Equal(t, len(resourceData.Get("T1").(map[string]interface{})), 2, "T1 did not unmarshal")
-	assert.Equal(t, resourceData.Get("T1.T1a"), "r1", "T1 did not unmarshal")
-	assert.Equal(t, resourceData.Get("T1.T1b"), "r2", "T1 did not unmarshal")
+	if len(resourceData.Get("T1").(map[string]interface{})) != 2 {
+		t.Error("T1 did not unmarshal")
+	}
+	if resourceData.Get("T1.T1a") != "r1" {
+		t.Error("T1 did not unmarshal")
+	}
+	if resourceData.Get("T1.T1b") != "r2" {
+		t.Error("T1 did not unmarshal")
+	}
 }
 
 func TestSidMapMarshal(t *testing.T) {
@@ -884,9 +1105,15 @@ func TestSidMapMarshal(t *testing.T) {
 	if err := MarshalSchema(resourceData, &testStruct); err != nil {
 		t.Errorf("Marshall failed: result '%v'", err)
 	}
-	assert.Equal(t, len(resourceData.Get("T1").(map[string]interface{})), 2, "T1 did not unmarshal")
-	assert.Equal(t, resourceData.Get("T1.T1a"), "AC00112233445566778899aabbccddeefe", "T1 did not unmarshal")
-	assert.Equal(t, resourceData.Get("T1.T1b"), "AC00112233445566778899aabbccddeeff", "T1 did not unmarshal")
+	if len(resourceData.Get("T1").(map[string]interface{})) != 2 {
+		t.Error("T1 did not unmarshal")
+	}
+	if resourceData.Get("T1.T1a") != "AC00112233445566778899aabbccddeefe" {
+		t.Error("T1 did not unmarshal")
+	}
+	if resourceData.Get("T1.T1b") != "AC00112233445566778899aabbccddeeff" {
+		t.Error("T1 did not unmarshal")
+	}
 }
 
 func TestComplexMapMarshal(t *testing.T) {
@@ -912,7 +1139,9 @@ func TestComplexMapMarshal(t *testing.T) {
 	if err := MarshalSchema(resourceData, &testStruct); err != nil {
 		t.Errorf("Marshall failed: result '%v'", err)
 	}
-	assert.Equal(t, resourceData.Get("T1"), "{\"M0\":{\"T1a\":\"r1\",\"T1b\":true},\"M1\":{\"T1a\":\"r2\",\"T1b\":false}}", "T1 did not unmarshal")
+	if resourceData.Get("T1") != "{\"M0\":{\"T1a\":\"r1\",\"T1b\":true},\"M1\":{\"T1a\":\"r2\",\"T1b\":false}}" {
+		t.Error("T1 did not unmarshal")
+	}
 }
 
 func TestPureJsonMarshal(t *testing.T) {
@@ -934,7 +1163,9 @@ func TestPureJsonMarshal(t *testing.T) {
 		t.Errorf("Marshall failed: result '%v'", err)
 	}
 
-	assert.Equal(t, resourceData.Get("T1"), "{\"test\":\"test_value\"}", "T1 did not unmarshal")
+	if resourceData.Get("T1") != "{\"test\":\"test_value\"}" {
+		t.Error("T1 did not unmarshal")
+	}
 }
 
 func TestJsonEncodedListOfObjectsMarshal(t *testing.T) {
@@ -967,8 +1198,12 @@ func TestJsonEncodedListOfObjectsMarshal(t *testing.T) {
 	if err := MarshalSchema(resourceData, &testStruct); err != nil {
 		t.Errorf("Marshall failed: result '%v'", err)
 	}
-	assert.EqualValues(t, "{\"foo\":\"bar1\"}", resourceData.Get("T1.0"), "T1 did not unmarshal")
-	assert.EqualValues(t, "{\"foo\":\"bar2\"}", resourceData.Get("T1.1"), "T1 did not unmarshal")
+	if resourceData.Get("T1.0") != "{\"foo\":\"bar1\"}" {
+		t.Error("T1 did not unmarshal")
+	}
+	if resourceData.Get("T1.1") != "{\"foo\":\"bar2\"}" {
+		t.Error("T1 did not unmarshal")
+	}
 }
 
 func TestImplicitNestedMarshal(t *testing.T) {
@@ -1017,30 +1252,52 @@ func TestImplicitNestedMarshal(t *testing.T) {
 	if err := MarshalSchema(resourceData, &testStruct); err != nil {
 		t.Errorf("Marshall failed: result '%v'", err)
 	}
-	assert.Equal(t, 10, resourceData.Get("limits_channel_members"), "limits_channel_members did not marshal")
-	assert.Equal(t, true, resourceData.Get("notifications_log_enabled"), "notifications_log_enabled did not marshal")
-	assert.Equal(t, "LOUD NOISES!", resourceData.Get("notifications_new_message_sound"), "notifications_new_message_sound did not marshal")
-	assert.Equal(t, "Andjaydee", resourceData.Get("notifications_recipient_last_name"), "notifications_recipient_last_name did not marshal")
-	assert.Nil(t, resourceData.Get("notifications_recipient_email"), "notifications_recipient_email did not marshal")
+	if resourceData.Get("limits_channel_members") != 10 {
+		t.Error("limits_channel_members did not marshal")
+	}
+	if resourceData.Get("notifications_log_enabled") != true {
+		t.Error("notifications_log_enabled did not marshal")
+	}
+	if resourceData.Get("notifications_new_message_sound") != "LOUD NOISES!" {
+		t.Error("notifications_new_message_sound did not marshal")
+	}
+	if resourceData.Get("notifications_recipient_last_name") != "Andjaydee" {
+		t.Error("notifications_recipient_last_name did not marshal")
+	}
+	if resourceData.Get("notifications_recipient_email") != nil {
+		t.Error("notifications_recipient_email did not marshal")
+	}
 }
 
 func TestSnakeCaseConversion(t *testing.T) {
 	testStr := "Integration.FlowSid"
 	result := ToSnakeCase(testStr)
-	assert.Equal(t, result, "integration_flow_sid")
+	if result != "integration_flow_sid" {
+		t.Errorf("ToSnakeCase(%q) = %q, want %q", testStr, result, "integration_flow_sid")
+	}
 	testStr = "Integration.Flow.Sid"
 	result = ToSnakeCase(testStr)
-	assert.Equal(t, result, "integration_flow_sid")
+	if result != "integration_flow_sid" {
+		t.Errorf("ToSnakeCase(%q) = %q, want %q", testStr, result, "integration_flow_sid")
+	}
 	testStr = "integration.flow.sid"
 	result = ToSnakeCase(testStr)
-	assert.Equal(t, result, "integration_flow_sid")
+	if result != "integration_flow_sid" {
+		t.Errorf("ToSnakeCase(%q) = %q, want %q", testStr, result, "integration_flow_sid")
+	}
 	testStr = "integration_flow_sid"
 	result = ToSnakeCase(testStr)
-	assert.Equal(t, result, "integration_flow_sid")
+	if result != "integration_flow_sid" {
+		t.Errorf("ToSnakeCase(%q) = %q, want %q", testStr, result, "integration_flow_sid")
+	}
 	testStr = "IntegrationChannel123"
 	result = ToSnakeCase(testStr)
-	assert.Equal(t, result, "integration_channel123")
+	if result != "integration_channel123" {
+		t.Errorf("ToSnakeCase(%q) = %q, want %q", testStr, result, "integration_channel123")
+	}
 	testStr = "IntegrationChannelSid"
 	result = ToSnakeCase(testStr)
-	assert.Equal(t, result, "integration_channel_sid")
+	if result != "integration_channel_sid" {
+		t.Errorf("ToSnakeCase(%q) = %q, want %q", testStr, result, "integration_channel_sid")
+	}
 }

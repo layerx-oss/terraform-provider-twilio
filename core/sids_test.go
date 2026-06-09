@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"strings"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
 )
 
 func TestSidInterfaceTypes(t *testing.T) {
@@ -834,17 +832,24 @@ func TestWorkflowSidJsonUnmarshal(t *testing.T) {
 
 func TestCanCreateRandomSid(t *testing.T) {
 	rq := RequestSid{}
-	assert.False(t, rq.Valid, "It's just a reference")
+	if rq.Valid {
+		t.Error("It's just a reference")
+	}
 	_ = rq.Randomize(&rq)
-	assert.True(t, rq.Valid, "It's just a reference")
+	if !rq.Valid {
+		t.Error("It's just a reference")
+	}
 }
 
 func TestCanNotCreateRandomSidOnValue(t *testing.T) {
 	rq := RequestSid{}
-	assert.Panics(t, func() {
-		// This panics because it expects pointer  rq.Randomize(&rq);
-		// and Randomize method cannot declare Randomize(t *interface{})
-		// because Cannot use 'rq' (type RequestSid) as type *interface{}
-		_ = rq.Randomize(rq)
-	})
+	defer func() {
+		if recover() == nil {
+			t.Error("expected panic")
+		}
+	}()
+	// This panics because it expects pointer  rq.Randomize(&rq);
+	// and Randomize method cannot declare Randomize(t *interface{})
+	// because Cannot use 'rq' (type RequestSid) as type *interface{}
+	_ = rq.Randomize(rq)
 }

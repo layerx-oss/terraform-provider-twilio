@@ -4,8 +4,6 @@ import (
 	"net/url"
 	"reflect"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
 )
 
 func TestProcessFormValueBool(t *testing.T) {
@@ -18,8 +16,12 @@ func TestProcessFormValueBool(t *testing.T) {
 	testValue := testStruct{a: true}
 
 	err := processParamValue("form", &form, reflect.TypeOf(testValue).Field(0), reflect.ValueOf(testValue).Field(0))
-	assert.Nil(t, err, "ProcessFormValue failed")
-	assert.Equal(t, []string{"true"}, form["a"])
+	if err != nil {
+		t.Fatalf("ProcessFormValue failed: %v", err)
+	}
+	if got, want := form["a"], []string{"true"}; !reflect.DeepEqual(got, want) {
+		t.Errorf("form[\"a\"] = %#v, want %#v", got, want)
+	}
 }
 
 func TestProcessFormValueInt(t *testing.T) {
@@ -32,8 +34,12 @@ func TestProcessFormValueInt(t *testing.T) {
 	testValue := testStruct{a: 1}
 
 	err := processParamValue("form", &form, reflect.TypeOf(testValue).Field(0), reflect.ValueOf(testValue).Field(0))
-	assert.Nil(t, err, "ProcessFormValue failed")
-	assert.Equal(t, []string{"1"}, form["a"])
+	if err != nil {
+		t.Fatalf("ProcessFormValue failed: %v", err)
+	}
+	if got, want := form["a"], []string{"1"}; !reflect.DeepEqual(got, want) {
+		t.Errorf("form[\"a\"] = %#v, want %#v", got, want)
+	}
 }
 
 func TestProcessFormValueFloat(t *testing.T) {
@@ -46,8 +52,12 @@ func TestProcessFormValueFloat(t *testing.T) {
 	testValue := testStruct{a: 1}
 
 	err := processParamValue("form", &form, reflect.TypeOf(testValue).Field(0), reflect.ValueOf(testValue).Field(0))
-	assert.Nil(t, err, "ProcessFormValue failed")
-	assert.Equal(t, []string{"1"}, form["a"])
+	if err != nil {
+		t.Fatalf("ProcessFormValue failed: %v", err)
+	}
+	if got, want := form["a"], []string{"1"}; !reflect.DeepEqual(got, want) {
+		t.Errorf("form[\"a\"] = %#v, want %#v", got, want)
+	}
 }
 
 func TestProcessFormValueString(t *testing.T) {
@@ -60,8 +70,12 @@ func TestProcessFormValueString(t *testing.T) {
 	testValue := testStruct{a: "str"}
 
 	err := processParamValue("form", &form, reflect.TypeOf(testValue).Field(0), reflect.ValueOf(testValue).Field(0))
-	assert.Nil(t, err, "ProcessFormValue failed")
-	assert.Equal(t, []string{"str"}, form["a"])
+	if err != nil {
+		t.Fatalf("ProcessFormValue failed: %v", err)
+	}
+	if got, want := form["a"], []string{"str"}; !reflect.DeepEqual(got, want) {
+		t.Errorf("form[\"a\"] = %#v, want %#v", got, want)
+	}
 }
 
 func TestProcessFormValueIntList(t *testing.T) {
@@ -74,8 +88,12 @@ func TestProcessFormValueIntList(t *testing.T) {
 	testValue := testStruct{a: []int{1, 2, 3}}
 
 	err := processParamValue("form", &form, reflect.TypeOf(testValue).Field(0), reflect.ValueOf(testValue).Field(0))
-	assert.Nil(t, err, "ProcessFormValue failed")
-	assert.Equal(t, []string{"1", "2", "3"}, form["a"])
+	if err != nil {
+		t.Fatalf("ProcessFormValue failed: %v", err)
+	}
+	if got, want := form["a"], []string{"1", "2", "3"}; !reflect.DeepEqual(got, want) {
+		t.Errorf("form[\"a\"] = %#v, want %#v", got, want)
+	}
 }
 
 func TestProcessFormValueArray(t *testing.T) {
@@ -88,7 +106,9 @@ func TestProcessFormValueArray(t *testing.T) {
 	testValue := testStruct{a: [1]int{1}}
 
 	err := processParamValue("form", &form, reflect.TypeOf(testValue).Field(0), reflect.ValueOf(testValue).Field(0))
-	assert.NotNil(t, err, "ProcessFormValue Succeeded (failure expected)")
+	if err == nil {
+		t.Error("ProcessFormValue succeeded, want an error")
+	}
 }
 
 func TestProcessFormValueBasic(t *testing.T) {
@@ -102,8 +122,12 @@ func TestProcessFormValueBasic(t *testing.T) {
 	testValue := testStruct{A: sid}
 
 	err := processParamValue("form", &form, reflect.TypeOf(testValue).Field(0), reflect.ValueOf(testValue).Field(0))
-	assert.Nil(t, err, "ProcessFormValue failed")
-	assert.Equal(t, []string{"XX00112233445566778899aabbccddeeff"}, form["A"])
+	if err != nil {
+		t.Fatalf("ProcessFormValue failed: %v", err)
+	}
+	if got, want := form["A"], []string{"XX00112233445566778899aabbccddeeff"}; !reflect.DeepEqual(got, want) {
+		t.Errorf("form[\"A\"] = %#v, want %#v", got, want)
+	}
 }
 
 func TestProcessFormValuePtrNil(t *testing.T) {
@@ -116,7 +140,9 @@ func TestProcessFormValuePtrNil(t *testing.T) {
 	testValue := testStruct{A: nil}
 
 	err := processParamValue("form", &form, reflect.TypeOf(testValue).Field(0), reflect.ValueOf(testValue).Field(0))
-	assert.NotNil(t, err, "ProcessFormValue Succeeded (failure expected)")
+	if err == nil {
+		t.Error("ProcessFormValue succeeded, want an error")
+	}
 }
 
 func TestProcessFormValuePtrBasic(t *testing.T) {
@@ -130,8 +156,12 @@ func TestProcessFormValuePtrBasic(t *testing.T) {
 	testValue := testStruct{A: &sid}
 
 	err := processParamValue("form", &form, reflect.TypeOf(testValue).Field(0), reflect.ValueOf(testValue).Field(0))
-	assert.Nil(t, err, "ProcessFormValue failed")
-	assert.Equal(t, []string{"XX00112233445566778899aabbccddeeff"}, form["A"])
+	if err != nil {
+		t.Fatalf("ProcessFormValue failed: %v", err)
+	}
+	if got, want := form["A"], []string{"XX00112233445566778899aabbccddeeff"}; !reflect.DeepEqual(got, want) {
+		t.Errorf("form[\"A\"] = %#v, want %#v", got, want)
+	}
 }
 
 func TestProcessFormValueJson(t *testing.T) {
@@ -144,8 +174,12 @@ func TestProcessFormValueJson(t *testing.T) {
 	testValue := testStruct{A: map[string]interface{}{"a": 1, "b": "str"}}
 
 	err := processParamValue("form", &form, reflect.TypeOf(testValue).Field(0), reflect.ValueOf(testValue).Field(0))
-	assert.Nil(t, err, "ProcessFormValue failed")
-	assert.Equal(t, []string{"{\"a\":1,\"b\":\"str\"}"}, form["A"])
+	if err != nil {
+		t.Fatalf("ProcessFormValue failed: %v", err)
+	}
+	if got, want := form["A"], []string{"{\"a\":1,\"b\":\"str\"}"}; !reflect.DeepEqual(got, want) {
+		t.Errorf("form[\"A\"] = %#v, want %#v", got, want)
+	}
 }
 
 func TestProcessFormValueName(t *testing.T) {
@@ -158,8 +192,12 @@ func TestProcessFormValueName(t *testing.T) {
 	testValue := testStruct{a: 1}
 
 	err := processParamValue("form", &form, reflect.TypeOf(testValue).Field(0), reflect.ValueOf(testValue).Field(0))
-	assert.Nil(t, err, "ProcessFormValue failed")
-	assert.Equal(t, []string{"1"}, form["b"])
+	if err != nil {
+		t.Fatalf("ProcessFormValue failed: %v", err)
+	}
+	if got, want := form["b"], []string{"1"}; !reflect.DeepEqual(got, want) {
+		t.Errorf("form[\"b\"] = %#v, want %#v", got, want)
+	}
 }
 
 func TestProcessFormValueIgnore(t *testing.T) {
@@ -172,9 +210,12 @@ func TestProcessFormValueIgnore(t *testing.T) {
 	testValue := testStruct{a: 1}
 
 	err := processParamValue("form", &form, reflect.TypeOf(testValue).Field(0), reflect.ValueOf(testValue).Field(0))
-	assert.Nil(t, err, "ProcessFormValue failed")
-	_, ok := form["a"]
-	assert.Equal(t, false, ok, "form is not empty")
+	if err != nil {
+		t.Fatalf("ProcessFormValue failed: %v", err)
+	}
+	if _, ok := form["a"]; ok {
+		t.Error("form is not empty, want empty")
+	}
 }
 
 func TestProcessFormValueOmitEmpty(t *testing.T) {
@@ -187,9 +228,12 @@ func TestProcessFormValueOmitEmpty(t *testing.T) {
 	testValue := testStruct{A: nil}
 
 	err := processParamValue("form", &form, reflect.TypeOf(testValue).Field(0), reflect.ValueOf(testValue).Field(0))
-	assert.Nil(t, err, "ProcessFormValue failed")
-	_, ok := form["A"]
-	assert.Equal(t, false, ok, "form is not empty")
+	if err != nil {
+		t.Fatalf("ProcessFormValue failed: %v", err)
+	}
+	if _, ok := form["A"]; ok {
+		t.Error("form is not empty, want empty")
+	}
 }
 
 func TestProcessFormValueFlatten(t *testing.T) {
@@ -206,8 +250,12 @@ func TestProcessFormValueFlatten(t *testing.T) {
 	testValue := testStruct{A: testStruct2{B: 3}}
 
 	err := processParamValue("form", &form, reflect.TypeOf(testValue).Field(0), reflect.ValueOf(testValue).Field(0))
-	assert.Nil(t, err, "ProcessFormValue failed")
-	assert.Equal(t, []string{"3"}, form["B"])
+	if err != nil {
+		t.Fatalf("ProcessFormValue failed: %v", err)
+	}
+	if got, want := form["B"], []string{"3"}; !reflect.DeepEqual(got, want) {
+		t.Errorf("form[\"B\"] = %#v, want %#v", got, want)
+	}
 }
 
 func TestProcessFormValueNoFlatten(t *testing.T) {
@@ -224,7 +272,9 @@ func TestProcessFormValueNoFlatten(t *testing.T) {
 	testValue := testStruct{A: testStruct2{B: 3}}
 
 	err := processParamValue("form", &form, reflect.TypeOf(testValue).Field(0), reflect.ValueOf(testValue).Field(0))
-	assert.NotNil(t, err, "ProcessFormValue Succeeded")
+	if err == nil {
+		t.Error("ProcessFormValue succeeded, want an error")
+	}
 }
 
 func TestFormEncoderSimple(t *testing.T) {
@@ -237,18 +287,26 @@ func TestFormEncoderSimple(t *testing.T) {
 	testValue := testStruct{a: 2, b: 3}
 
 	form, err := FormEncoder(testValue)
-	assert.Nil(t, err, "FormEncoder failed")
-	assert.Equal(t, []string{"2"}, form["a"])
-	assert.Equal(t, []string{"3"}, form["b"])
+	if err != nil {
+		t.Fatalf("FormEncoder failed: %v", err)
+	}
+	if got, want := form["a"], []string{"2"}; !reflect.DeepEqual(got, want) {
+		t.Errorf("form[\"a\"] = %#v, want %#v", got, want)
+	}
+	if got, want := form["b"], []string{"3"}; !reflect.DeepEqual(got, want) {
+		t.Errorf("form[\"b\"] = %#v, want %#v", got, want)
+	}
 }
 
 func TestFormEncoderNil(t *testing.T) {
-	_, err := FormEncoder(nil)
-	assert.NotNil(t, err, "FormEncoder succeeded")
+	if _, err := FormEncoder(nil); err == nil {
+		t.Error("FormEncoder(nil) succeeded, want an error")
+	}
 }
 
 func TestFormEncoderArray(t *testing.T) {
 	testValue := []int{1, 2}
-	_, err := FormEncoder(testValue)
-	assert.NotNil(t, err, "FormEncoder succeeded")
+	if _, err := FormEncoder(testValue); err == nil {
+		t.Error("FormEncoder([]int) succeeded, want an error")
+	}
 }

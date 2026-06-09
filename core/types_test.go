@@ -1,30 +1,45 @@
 package core
 
-import (
-	"testing"
-
-	"github.com/stretchr/testify/assert"
-)
+import "testing"
 
 func TestIntToString(t *testing.T) {
-	assert.Equal(t, "123", IntToString(123))
-	assert.Equal(t, "0", IntToString(0))
-	assert.Equal(t, "-123", IntToString(-123))
+	if got := IntToString(123); got != "123" {
+		t.Errorf("IntToString(123) = %q, want %q", got, "123")
+	}
+	if got := IntToString(0); got != "0" {
+		t.Errorf("IntToString(0) = %q, want %q", got, "0")
+	}
+	if got := IntToString(-123); got != "-123" {
+		t.Errorf("IntToString(-123) = %q, want %q", got, "-123")
+	}
 }
 
 func TestStringToInt(t *testing.T) {
 	value, err := StringToInt("123")
-	assert.Nil(t, err)
-	assert.Equal(t, 123, value)
+	if err != nil {
+		t.Fatalf("StringToInt(%q) unexpected error: %v", "123", err)
+	}
+	if value != 123 {
+		t.Errorf("StringToInt(%q) = %d, want %d", "123", value, 123)
+	}
 
 	value, err = StringToInt("0")
-	assert.Nil(t, err)
-	assert.Equal(t, 0, value)
+	if err != nil {
+		t.Fatalf("StringToInt(%q) unexpected error: %v", "0", err)
+	}
+	if value != 0 {
+		t.Errorf("StringToInt(%q) = %d, want %d", "0", value, 0)
+	}
 
 	value, err = StringToInt("-123")
-	assert.Nil(t, err)
-	assert.Equal(t, -123, value)
+	if err != nil {
+		t.Fatalf("StringToInt(%q) unexpected error: %v", "-123", err)
+	}
+	if value != -123 {
+		t.Errorf("StringToInt(%q) = %d, want %d", "-123", value, -123)
+	}
 
-	_, err = StringToInt("blurg")
-	assert.NotNil(t, err)
+	if _, err = StringToInt("blurg"); err == nil {
+		t.Errorf("StringToInt(%q) expected an error, got nil", "blurg")
+	}
 }

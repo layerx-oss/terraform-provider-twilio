@@ -4,7 +4,6 @@ import (
 	"os"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
 	"github.com/twilio/terraform-provider-twilio/twilio/resources"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -27,7 +26,9 @@ func TestMain(m *testing.M) {
 
 func TestTwilioResourcesMap(t *testing.T) {
 	twilioResources := resources.NewTwilioResources()
-	assert.NotNil(t, twilioResources.Map["twilio_api_accounts_messages"])
+	if twilioResources.Map["twilio_api_accounts_messages"] == nil {
+		t.Fatal("expected twilio_api_accounts_messages to be registered")
+	}
 }
 
 func testAccPreCheck(t *testing.T) {
