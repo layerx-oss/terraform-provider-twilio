@@ -1,7 +1,7 @@
 terraform {
   required_providers {
     twilio = {
-      source  = "twilio/twilio"
+      source  = "registry.terraform.io/layerx/twilio"
       version = ">=0.4.0"
     }
   }
