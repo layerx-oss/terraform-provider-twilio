@@ -9,7 +9,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	twilio "github.com/twilio/terraform-provider-twilio/client"
-	"github.com/twilio/terraform-provider-twilio/twilio/resources"
 	client "github.com/twilio/twilio-go"
 	twclient "github.com/twilio/twilio-go/client"
 )
@@ -66,7 +65,7 @@ func Provider() *schema.Provider {
 			},
 		},
 		DataSourcesMap: map[string]*schema.Resource{},
-		ResourcesMap:   resources.NewTwilioResources().Map,
+		ResourcesMap:   buildResourcesMap(),
 	}
 
 	p.ConfigureContextFunc = providerClient(p)
