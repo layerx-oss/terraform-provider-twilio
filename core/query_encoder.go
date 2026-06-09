@@ -6,7 +6,7 @@ import (
 	"reflect"
 )
 
-func QueryEncoder(src interface{}) (string, error) {
+func QueryEncoder(src any) (string, error) {
 	if src == nil {
 		return "", CreateErrorGeneric("Nil query provided")
 	}
@@ -18,7 +18,7 @@ func QueryEncoder(src interface{}) (string, error) {
 
 	values := url.Values{}
 	srcValue := reflect.ValueOf(src)
-	for i := 0; i < srcType.NumField(); i++ {
+	for i := range srcType.NumField() {
 		field := srcType.Field(i)
 		fieldValue := srcValue.Field(i)
 

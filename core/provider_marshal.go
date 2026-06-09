@@ -13,14 +13,14 @@ import (
 )
 
 type DecoratedBasicTypeInterface interface {
-	Set(value interface{}) error
-	GetNativePresentation() (interface{}, bool)
-	Get() (interface{}, bool)
+	Set(value any) error
+	GetNativePresentation() (any, bool)
+	Get() (any, bool)
 }
 
 type DecoratedBasicTypeGetterInterface interface {
-	GetNativePresentation() (interface{}, bool)
-	Get() (interface{}, bool)
+	GetNativePresentation() (any, bool)
+	Get() (any, bool)
 }
 
 type tagInfo struct {
@@ -52,7 +52,7 @@ func isBasic(elemType reflect.Type) bool {
 	return reflect.PointerTo(elemType).Implements(reflect.TypeOf((*DecoratedBasicTypeInterface)(nil)).Elem())
 }
 
-func unmarshallNode(fieldType reflect.Type, fieldValue reflect.Value, getter func(tagInfo, string) (interface{}, bool), tag tagInfo, fieldName string) error {
+func unmarshallNode(fieldType reflect.Type, fieldValue reflect.Value, getter func(tagInfo, string) (any, bool), tag tagInfo, fieldName string) error {
 	switch fieldType.Kind() {
 	case reflect.Bool:
 		srcValue, exists := getter(tag, fieldName)
@@ -127,7 +127,7 @@ func unmarshallNode(fieldType reflect.Type, fieldValue reflect.Value, getter fun
 				}
 				return basic.Set(srcValue)
 			}
-			for i := 0; i < fieldType.NumField(); i++ {
+			for i := range fieldType.NumField() {
 				subType := fieldType.Field(i).Type
 				subValue := fieldValue.Field(i)
 				subTag := getNameFromTag(fieldType.Field(i))
@@ -150,7 +150,7 @@ func unmarshallNode(fieldType reflect.Type, fieldValue reflect.Value, getter fun
 		if !exists {
 			return nil
 		}
-		sliceValue, ok := srcValue.([]interface{})
+		sliceValue, ok := srcValue.([]any)
 		if !ok {
 			return CreateErrorGeneric("Wrong type for slice field " + fieldName)
 		}
@@ -174,7 +174,7 @@ func unmarshallNode(fieldType reflect.Type, fieldValue reflect.Value, getter fun
 		}
 		if elemKind == reflect.Bool || elemKind == reflect.Int || elemKind == reflect.String || isBasic(elemType) {
 			// input is map
-			srcMap, ok := srcValue.(map[string]interface{})
+			srcMap, ok := srcValue.(map[string]any)
 			if !ok {
 				return CreateErrorGeneric("Wrong type for map field " + fieldName)
 			}
@@ -210,7 +210,7 @@ func unmarshallNode(fieldType reflect.Type, fieldValue reflect.Value, getter fun
 		if !ok {
 			return CreateErrorGeneric("Wrong type for interface field " + fieldName)
 		}
-		var jsonValue map[string]interface{}
+		var jsonValue map[string]any
 		if err := json.Unmarshal(([]byte)(stringValue), &jsonValue); err != nil {
 			return WrapErrorGeneric(err, "json Unmarshal for interface field '"+fieldName+"' failed from '"+stringValue+"'")
 		}
@@ -224,14 +224,14 @@ func unmarshallNode(fieldType reflect.Type, fieldValue reflect.Value, getter fun
 }
 
 // From structure (client) presentation to provider (resourceData)
-func UnmarshalSchema(dest interface{}, resourceData *schema.ResourceData) error {
+func UnmarshalSchema(dest any, resourceData *schema.ResourceData) error {
 	destType := reflect.TypeOf(dest).Elem()
 	destValue := reflect.Indirect(reflect.ValueOf(dest))
 
-	for i := 0; i < destType.NumField(); i++ {
+	for i := range destType.NumField() {
 		field := destType.Field(i)
 
-		topLevelGetter := func(tag tagInfo, name string) (interface{}, bool) {
+		topLevelGetter := func(tag tagInfo, name string) (any, bool) {
 			if tag.isId {
 				srcValue := resourceData.Id()
 				// empty id (resource not created)
@@ -266,7 +266,7 @@ func UnmarshalSchema(dest interface{}, resourceData *schema.ResourceData) error 
 	return nil
 }
 
-func marshallNode(setter func(string, interface{}) error, fieldName string, fieldType reflect.Type, fieldValue reflect.Value, flatten bool) error {
+func marshallNode(setter func(string, any) error, fieldName string, fieldType reflect.Type, fieldValue reflect.Value, flatten bool) error {
 
 	switch fieldType.Kind() {
 	case reflect.Bool:
@@ -293,7 +293,7 @@ func marshallNode(setter func(string, interface{}) error, fieldName string, fiel
 		if fieldValue.IsNil() {
 			return setter(fieldName, nil)
 		}
-		ptrSetter := func(name string, value interface{}) error {
+		ptrSetter := func(name string, value any) error {
 			if value == nil {
 				return setter(fieldName, nil)
 			}
@@ -320,23 +320,23 @@ func marshallNode(setter func(string, interface{}) error, fieldName string, fiel
 					return setter(fieldName, value)
 				} else {
 					// TF expects typed nil!
-					var value *interface{} = nil
+					var value *any = nil
 					return setter(fieldName, value)
 				}
 			}
 
-			mapTarget := make(map[string]interface{})
-			var subSetter func(string, interface{}) error
+			mapTarget := make(map[string]any)
+			var subSetter func(string, any) error
 			if flatten {
 				subSetter = setter
 			} else {
-				subSetter = func(name string, value interface{}) error {
+				subSetter = func(name string, value any) error {
 					mapTarget[name[strings.LastIndex(name, ".")+1:]] = value
 					return nil
 				}
 			}
 
-			for i := 0; i < fieldType.NumField(); i++ {
+			for i := range fieldType.NumField() {
 				subType := fieldType.Field(i).Type
 				subValue := fieldValue.Field(i)
 				tag := getNameFromTag(fieldType.Field(i))
@@ -371,8 +371,8 @@ func marshallNode(setter func(string, interface{}) error, fieldName string, fiel
 		if fieldValue.IsNil() {
 			return setter(fieldName, nil)
 		}
-		sliceTarget := make([]interface{}, fieldValue.Len(), fieldValue.Len()) //nolint
-		sliceSetter := func(name string, value interface{}) error {
+		sliceTarget := make([]any, fieldValue.Len())
+		sliceSetter := func(name string, value any) error {
 			index, err := strconv.ParseInt(name[strings.LastIndex(name, ".")+1:], 10, 32)
 			if err != nil {
 				// Ignore if we can't parse the item index. This happens when trying to add individual fields of an
@@ -384,7 +384,7 @@ func marshallNode(setter func(string, interface{}) error, fieldName string, fiel
 			return nil
 		}
 		elemType := fieldType.Elem()
-		for i := 0; i < fieldValue.Len(); i++ {
+		for i := range fieldValue.Len() {
 			if err := marshallNode(sliceSetter, fieldName+"."+strconv.Itoa(i), elemType, fieldValue.Index(i), flatten); err != nil {
 				return err
 			}
@@ -398,8 +398,8 @@ func marshallNode(setter func(string, interface{}) error, fieldName string, fiel
 		// same as in unmarshalling, we can only use map for the basic types
 		elemKind := fieldType.Elem().Kind()
 		if elemKind == reflect.Bool || elemKind == reflect.Int || elemKind == reflect.String || isBasic(fieldType.Elem()) {
-			mapTarget := make(map[string]interface{})
-			mapSetter := func(name string, value interface{}) error {
+			mapTarget := make(map[string]any)
+			mapSetter := func(name string, value any) error {
 				mapTarget[name[strings.LastIndex(name, ".")+1:]] = value
 				return nil
 			}
@@ -460,17 +460,17 @@ func marshallNode(setter func(string, interface{}) error, fieldName string, fiel
 }
 
 // From provider (resourceData) to structure (client) presentation
-func MarshalSchema(resourceData *schema.ResourceData, src interface{}) error {
+func MarshalSchema(resourceData *schema.ResourceData, src any) error {
 	srcType := reflect.TypeOf(src).Elem()
 	srcValue := reflect.Indirect(reflect.ValueOf(src))
-	for i := 0; i < srcType.NumField(); i++ {
+	for i := range srcType.NumField() {
 		tag := getNameFromTag(srcType.Field(i))
 		if tag.ignore {
 			continue
 		}
 		fieldType := srcType.Field(i).Type
 		field := reflect.Indirect(srcValue).Field(i)
-		topLevelSetter := func(name string, value interface{}) error {
+		topLevelSetter := func(name string, value any) error {
 			if tag.isId {
 				if stringValue, ok := value.(*string); ok {
 					resourceData.SetId(*stringValue)

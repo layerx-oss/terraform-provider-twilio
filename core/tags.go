@@ -1,6 +1,9 @@
 package core
 
-import "strings"
+import (
+	"slices"
+	"strings"
+)
 
 type TagOptions []string
 
@@ -10,10 +13,5 @@ func ParseTag(tag string) (string, TagOptions) {
 }
 
 func (o TagOptions) Contains(option string) bool {
-	for _, tag := range o {
-		if tag == option {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(o, option)
 }

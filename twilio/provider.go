@@ -67,7 +67,7 @@ func Provider() *schema.Provider {
 }
 
 func providerClient(p *schema.Provider) schema.ConfigureContextFunc {
-	return func(c context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
+	return func(c context.Context, d *schema.ResourceData) (any, diag.Diagnostics) {
 		var TwilioClient *client.RestClient
 
 		username := d.Get("username").(string)

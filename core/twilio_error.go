@@ -29,6 +29,11 @@ func (err TwilioError) Is(target error) bool {
 	return ok
 }
 
+// Unwrap exposes the wrapped cause so errors.Is/As can traverse the chain.
+func (err TwilioError) Unwrap() error {
+	return err.Cause
+}
+
 func WrapError(err error, status int, code int, message string) error {
 	return TwilioError{
 		Cause:   err,

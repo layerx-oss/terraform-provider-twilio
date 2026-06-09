@@ -30,21 +30,21 @@ type NullableFloat struct {
 // ---
 
 // DecoratedBasicTypeInterface
-func (nullable NullableString) Get() (interface{}, bool) {
+func (nullable NullableString) Get() (any, bool) {
 	if !nullable.Valid {
 		return nil, false
 	}
 	return "[" + nullable.Value + "]", true
 }
 
-func (nullable NullableString) GetNativePresentation() (interface{}, bool) {
+func (nullable NullableString) GetNativePresentation() (any, bool) {
 	if !nullable.Valid {
 		return nil, false
 	}
 	return nullable.Value, true
 }
 
-func (nullable *NullableString) Set(value interface{}) error {
+func (nullable *NullableString) Set(value any) error {
 	str, ok := value.(string)
 	if !ok {
 		return CreateErrorGeneric(fmt.Sprintf("Invalid type for Set NullablString '%v'", reflect.TypeOf(value)))
@@ -76,7 +76,7 @@ func (nullable *NullableString) UnmarshalJSON(buffer []byte) error {
 	nullable.Valid = false
 	nullable.Value = ""
 
-	var value interface{}
+	var value any
 	if err := json.Unmarshal(buffer, &value); err != nil {
 		return err
 	}
@@ -93,21 +93,21 @@ func (nullable *NullableString) UnmarshalJSON(buffer []byte) error {
 
 // ---
 
-func (nullable NullableBool) Get() (interface{}, bool) {
+func (nullable NullableBool) Get() (any, bool) {
 	if !nullable.Valid {
 		return nil, false
 	}
 	return strconv.FormatBool(nullable.Value), true
 }
 
-func (nullable NullableBool) GetNativePresentation() (interface{}, bool) {
+func (nullable NullableBool) GetNativePresentation() (any, bool) {
 	if !nullable.Valid {
 		return nil, false
 	}
 	return nullable.Value, true
 }
 
-func (nullable *NullableBool) Set(value interface{}) error {
+func (nullable *NullableBool) Set(value any) error {
 	str, ok := value.(string)
 	if !ok {
 		return CreateErrorGeneric(fmt.Sprintf("Invalid type for Set NullableBool '%v'", reflect.TypeOf(value)))
@@ -144,7 +144,7 @@ func (nullable *NullableBool) UnmarshalJSON(buffer []byte) error {
 	nullable.Valid = false
 	nullable.Value = false
 
-	var value interface{}
+	var value any
 	if err := json.Unmarshal(buffer, &value); err != nil {
 		return err
 	}
@@ -161,21 +161,21 @@ func (nullable *NullableBool) UnmarshalJSON(buffer []byte) error {
 
 // ---
 
-func (nullable NullableInt) Get() (interface{}, bool) {
+func (nullable NullableInt) Get() (any, bool) {
 	if !nullable.Valid {
 		return nil, false
 	}
 	return strconv.FormatInt(nullable.Value, 10), true
 }
 
-func (nullable NullableInt) GetNativePresentation() (interface{}, bool) {
+func (nullable NullableInt) GetNativePresentation() (any, bool) {
 	if !nullable.Valid {
 		return nil, false
 	}
 	return nullable.Value, true
 }
 
-func (nullable *NullableInt) Set(value interface{}) error {
+func (nullable *NullableInt) Set(value any) error {
 	str, ok := value.(string)
 	if !ok {
 		return CreateErrorGeneric(fmt.Sprintf("Invalid type for Set NullableInt '%v'", reflect.TypeOf(value)))
@@ -208,7 +208,7 @@ func (nullable *NullableInt) UnmarshalJSON(buffer []byte) error {
 	nullable.Valid = false
 	nullable.Value = 0
 
-	var value interface{}
+	var value any
 	if err := json.Unmarshal(buffer, &value); err != nil {
 		return err
 	}
@@ -225,21 +225,21 @@ func (nullable *NullableInt) UnmarshalJSON(buffer []byte) error {
 
 // ---
 
-func (nullable NullableFloat) Get() (interface{}, bool) {
+func (nullable NullableFloat) Get() (any, bool) {
 	if !nullable.Valid {
 		return nil, false
 	}
 	return fmt.Sprintf("%v", nullable.Value), true
 }
 
-func (nullable NullableFloat) GetNativePresentation() (interface{}, bool) {
+func (nullable NullableFloat) GetNativePresentation() (any, bool) {
 	if !nullable.Valid {
 		return nil, false
 	}
 	return nullable.Value, true
 }
 
-func (nullable *NullableFloat) Set(value interface{}) error {
+func (nullable *NullableFloat) Set(value any) error {
 	str, ok := value.(string)
 	if !ok {
 		return CreateErrorGeneric(fmt.Sprintf("Invalid type for Set NullableFloat '%v'", reflect.TypeOf(value)))
@@ -272,7 +272,7 @@ func (nullable *NullableFloat) UnmarshalJSON(buffer []byte) error {
 	nullable.Valid = false
 	nullable.Value = 0
 
-	var value interface{}
+	var value any
 	if err := json.Unmarshal(buffer, &value); err != nil {
 		return err
 	}

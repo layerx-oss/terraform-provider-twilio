@@ -15,8 +15,8 @@ type Sid struct {
 }
 
 type SidInterface interface {
-	Set(value interface{}) error
-	Get() (interface{}, bool)
+	Set(value any) error
+	Get() (any, bool)
 	UnmarshalJSON(buffer []byte) error
 	MarshalJSON() ([]byte, error)
 }
@@ -102,7 +102,7 @@ func CreateSid(str string) (Sid, error) {
 	return ret, ret.Set(str)
 }
 
-func (sid *Sid) Set(value interface{}) error {
+func (sid *Sid) Set(value any) error {
 	return sid.setWithType(value, nil)
 }
 
@@ -115,14 +115,14 @@ func (sid Sid) String() string {
 }
 
 // DecoratedBasicTypeInterface
-func (sid Sid) Get() (interface{}, bool) {
+func (sid Sid) Get() (any, bool) {
 	if !sid.Valid {
 		return nil, false
 	}
 	return string(sid.Prefix[:]) + hex.EncodeToString(sid.Value[:]), true
 }
 
-func (sid Sid) GetNativePresentation() (interface{}, bool) {
+func (sid Sid) GetNativePresentation() (any, bool) {
 	return sid.Get()
 }
 
@@ -142,7 +142,7 @@ func (sid Sid) MarshalJSON() ([]byte, error) {
 // PS! t must be an interface
 // t cannot be a t *interface{} because you
 // Cannot use any other sid (type RequestSid) as type *interface{}
-func (sid *Sid) Randomize(t interface{}) error {
+func (sid *Sid) Randomize(t any) error {
 	buf := [16]byte{}
 	if _, err := rand.Read(buf[:]); err != nil {
 		return err
@@ -153,7 +153,7 @@ func (sid *Sid) Randomize(t interface{}) error {
 }
 
 // private helpers
-func (sid *Sid) setWithType(value interface{}, t interface{}) error {
+func (sid *Sid) setWithType(value any, t any) error {
 	sid.Valid = false
 	if value == nil {
 		return nil
@@ -193,7 +193,7 @@ func (sid *Sid) setWithType(value interface{}, t interface{}) error {
 	return nil
 }
 
-func (sid *Sid) unmarshalJSONWithType(buffer []byte, t interface{}) error {
+func (sid *Sid) unmarshalJSONWithType(buffer []byte, t any) error {
 	var str string
 	if err := json.Unmarshal(buffer, &str); err != nil {
 		return err
@@ -208,7 +208,7 @@ func CreateAccountSid(str string) (AccountSid, error) {
 	return ret, ret.Set(str)
 }
 
-func (sid *AccountSid) Set(value interface{}) error {
+func (sid *AccountSid) Set(value any) error {
 	return sid.setWithType(value, sid)
 }
 
@@ -221,7 +221,7 @@ func CreateStudioStateSid(str string) (StudioStateSid, error) {
 	return ret, ret.Set(str)
 }
 
-func (sid *StudioStateSid) Set(value interface{}) error {
+func (sid *StudioStateSid) Set(value any) error {
 	return sid.setWithType(value, sid)
 }
 
@@ -234,7 +234,7 @@ func CreateFlexFlowSid(str string) (FlexFlowSid, error) {
 	return ret, ret.Set(str)
 }
 
-func (sid *FlexFlowSid) Set(value interface{}) error {
+func (sid *FlexFlowSid) Set(value any) error {
 	return sid.setWithType(value, sid)
 }
 
@@ -247,7 +247,7 @@ func CreateStudioFlowSid(str string) (StudioFlowSid, error) {
 	return ret, ret.Set(str)
 }
 
-func (sid *StudioFlowSid) Set(value interface{}) error {
+func (sid *StudioFlowSid) Set(value any) error {
 	return sid.setWithType(value, sid)
 }
 
@@ -260,7 +260,7 @@ func CreateServiceInstanceSid(str string) (ServiceInstanceSid, error) {
 	return ret, ret.Set(str)
 }
 
-func (sid *ServiceInstanceSid) Set(value interface{}) error {
+func (sid *ServiceInstanceSid) Set(value any) error {
 	return sid.setWithType(value, sid)
 }
 
@@ -273,7 +273,7 @@ func CreateIdentityRealmSid(str string) (IdentityRealmSid, error) {
 	return ret, ret.Set(str)
 }
 
-func (sid *IdentityRealmSid) Set(value interface{}) error {
+func (sid *IdentityRealmSid) Set(value any) error {
 	return sid.setWithType(value, sid)
 }
 
@@ -286,7 +286,7 @@ func CreateIdentityRealmCertificateSid(str string) (IdentityRealmCertificateSid,
 	return ret, ret.Set(str)
 }
 
-func (sid *IdentityRealmCertificateSid) Set(value interface{}) error {
+func (sid *IdentityRealmCertificateSid) Set(value any) error {
 	return sid.setWithType(value, sid)
 }
 
@@ -299,7 +299,7 @@ func CreateIdentityRealmRoleSid(str string) (IdentityRealmRoleSid, error) {
 	return ret, ret.Set(str)
 }
 
-func (sid *IdentityRealmRoleSid) Set(value interface{}) error {
+func (sid *IdentityRealmRoleSid) Set(value any) error {
 	return sid.setWithType(value, sid)
 }
 
@@ -312,7 +312,7 @@ func CreateProxyServiceSid(str string) (ProxyServiceSid, error) {
 	return ret, ret.Set(str)
 }
 
-func (sid *ProxyServiceSid) Set(value interface{}) error {
+func (sid *ProxyServiceSid) Set(value any) error {
 	return sid.setWithType(value, sid)
 }
 
@@ -325,7 +325,7 @@ func CreatePhoneNumberSid(str string) (PhoneNumberSid, error) {
 	return ret, ret.Set(str)
 }
 
-func (sid *PhoneNumberSid) Set(value interface{}) error {
+func (sid *PhoneNumberSid) Set(value any) error {
 	return sid.setWithType(value, sid)
 }
 
@@ -338,7 +338,7 @@ func CreateQuotaSid(str string) (QuotaSid, error) {
 	return ret, ret.Set(str)
 }
 
-func (sid *QuotaSid) Set(value interface{}) error {
+func (sid *QuotaSid) Set(value any) error {
 	return sid.setWithType(value, sid)
 }
 
@@ -351,7 +351,7 @@ func CreateChatRoleSid(str string) (ChatRoleSid, error) {
 	return ret, ret.Set(str)
 }
 
-func (sid *ChatRoleSid) Set(value interface{}) error {
+func (sid *ChatRoleSid) Set(value any) error {
 	return sid.setWithType(value, sid)
 }
 
@@ -364,7 +364,7 @@ func CreateRequestSid(str string) (RequestSid, error) {
 	return ret, ret.Set(str)
 }
 
-func (sid *RequestSid) Set(value interface{}) error {
+func (sid *RequestSid) Set(value any) error {
 	return sid.setWithType(value, sid)
 }
 
@@ -377,7 +377,7 @@ func CreateTaskChannelSid(str string) (TaskChannelSid, error) {
 	return ret, ret.Set(str)
 }
 
-func (sid *TaskChannelSid) Set(value interface{}) error {
+func (sid *TaskChannelSid) Set(value any) error {
 	return sid.setWithType(value, sid)
 }
 
@@ -390,7 +390,7 @@ func CreateUserSid(str string) (UserSid, error) {
 	return ret, ret.Set(str)
 }
 
-func (sid *UserSid) Set(value interface{}) error {
+func (sid *UserSid) Set(value any) error {
 	return sid.setWithType(value, sid)
 }
 
@@ -403,7 +403,7 @@ func CreateActivitySid(str string) (ActivitySid, error) {
 	return ret, ret.Set(str)
 }
 
-func (sid *ActivitySid) Set(value interface{}) error {
+func (sid *ActivitySid) Set(value any) error {
 	return sid.setWithType(value, sid)
 }
 
@@ -416,7 +416,7 @@ func CreateWorkqueueSid(str string) (WorkqueueSid, error) {
 	return ret, ret.Set(str)
 }
 
-func (sid *WorkqueueSid) Set(value interface{}) error {
+func (sid *WorkqueueSid) Set(value any) error {
 	return sid.setWithType(value, sid)
 }
 
@@ -429,7 +429,7 @@ func CreateWorkspaceSid(str string) (WorkspaceSid, error) {
 	return ret, ret.Set(str)
 }
 
-func (sid *WorkspaceSid) Set(value interface{}) error {
+func (sid *WorkspaceSid) Set(value any) error {
 	return sid.setWithType(value, sid)
 }
 
@@ -442,7 +442,7 @@ func CreateWorkflowSid(str string) (WorkflowSid, error) {
 	return ret, ret.Set(str)
 }
 
-func (sid *WorkflowSid) Set(value interface{}) error {
+func (sid *WorkflowSid) Set(value any) error {
 	return sid.setWithType(value, sid)
 }
 
