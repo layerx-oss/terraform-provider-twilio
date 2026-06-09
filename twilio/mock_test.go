@@ -79,7 +79,14 @@ func (m *mockTwilioAPI) RoundTrip(req *http.Request) (*http.Response, error) {
 		if match := serviceSidRe.FindStringSubmatch(path + "/"); match != nil {
 			obj["service_sid"] = match[1]
 		}
-		m.items[path+"/"+sid] = obj
+		// Server-generated credentials returned on creation.
+		switch lastSegment(path) {
+		case "Keys": // API key secret is returned exactly once, at creation.
+			obj["secret"] = "mock-secret-" + sid
+		case "Accounts": // (sub)account auth token.
+			obj["auth_token"] = "mock-token-" + sid
+		}
+		m.items[itemPath(path, sid)] = obj
 		return jsonResponse(req, http.StatusCreated, obj), nil
 	}
 
@@ -97,6 +104,16 @@ func (m *mockTwilioAPI) newSid(host, path string) string {
 		}
 	}
 	return fmt.Sprintf("%s%032d", prefix, m.seq)
+}
+
+// itemPath returns the canonical path an item is stored/read at. The 2010-04-01
+// API uses ".json" suffixes (collection "/Accounts.json", item
+// "/Accounts/{sid}.json"); newer APIs use bare paths ("/Services/{sid}").
+func itemPath(collectionPath, sid string) string {
+	if strings.HasSuffix(collectionPath, ".json") {
+		return strings.TrimSuffix(collectionPath, ".json") + "/" + sid + ".json"
+	}
+	return collectionPath + "/" + sid
 }
 
 func lastSegment(path string) string {
