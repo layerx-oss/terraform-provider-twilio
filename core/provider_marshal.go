@@ -49,7 +49,7 @@ func getNameFromTag(field reflect.StructField) tagInfo {
 }
 
 func isBasic(elemType reflect.Type) bool {
-	return reflect.PtrTo(elemType).Implements(reflect.TypeOf((*DecoratedBasicTypeInterface)(nil)).Elem())
+	return reflect.PointerTo(elemType).Implements(reflect.TypeOf((*DecoratedBasicTypeInterface)(nil)).Elem())
 }
 
 func unmarshallNode(fieldType reflect.Type, fieldValue reflect.Value, getter func(tagInfo, string) (interface{}, bool), tag tagInfo, fieldName string) error {
@@ -92,7 +92,7 @@ func unmarshallNode(fieldType reflect.Type, fieldValue reflect.Value, getter fun
 		}
 		fieldValue.SetString(stringValue)
 
-	case reflect.Ptr:
+	case reflect.Pointer:
 		// srcValue itself is not a pointer, it is coming from Terraform
 		// This is how we map existing keys to non-null pointers
 		_, exists := getter(tag, fieldName)
@@ -289,7 +289,7 @@ func marshallNode(setter func(string, interface{}) error, fieldName string, fiel
 			return err
 		}
 
-	case reflect.Ptr:
+	case reflect.Pointer:
 		if fieldValue.IsNil() {
 			return setter(fieldName, nil)
 		}

@@ -19,7 +19,7 @@ func processParamValue(paramType string, form *url.Values, field reflect.StructF
 		return nil
 	}
 
-	if value.Kind() == reflect.Ptr && value.IsNil() {
+	if value.Kind() == reflect.Pointer && value.IsNil() {
 		if opts.Contains("omitempty") {
 			return nil
 		} else {
@@ -27,7 +27,7 @@ func processParamValue(paramType string, form *url.Values, field reflect.StructF
 		}
 	}
 
-	if value.Kind() == reflect.Ptr {
+	if value.Kind() == reflect.Pointer {
 		value = value.Elem()
 	}
 
