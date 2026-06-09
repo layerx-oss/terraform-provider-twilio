@@ -66,7 +66,7 @@ func processParamValue(paramType string, form *url.Values, field reflect.StructF
 				}
 			}
 		} else if opts.Contains("flatten") {
-			for i := 0; i < field.Type.NumField(); i++ {
+			for i := range field.Type.NumField() {
 				subField := field.Type.Field(i)
 				subValue := value.Field(i)
 
@@ -84,7 +84,7 @@ func processParamValue(paramType string, form *url.Values, field reflect.StructF
 	return nil
 }
 
-func FormEncoder(src interface{}) (url.Values, error) {
+func FormEncoder(src any) (url.Values, error) {
 	if src == nil {
 		return nil, CreateErrorGeneric("Nil form provided")
 	}
@@ -96,7 +96,7 @@ func FormEncoder(src interface{}) (url.Values, error) {
 
 	form := url.Values{}
 	srcValue := reflect.ValueOf(src)
-	for i := 0; i < srcType.NumField(); i++ {
+	for i := range srcType.NumField() {
 		field := srcType.Field(i)
 		fieldValue := srcValue.Field(i)
 

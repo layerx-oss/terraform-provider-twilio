@@ -185,10 +185,10 @@ func TestProcessFormValueJson(t *testing.T) {
 	form := url.Values{}
 
 	type testStruct struct {
-		A interface{}
+		A any
 	}
 
-	testValue := testStruct{A: map[string]interface{}{"a": 1, "b": "str"}}
+	testValue := testStruct{A: map[string]any{"a": 1, "b": "str"}}
 
 	err := processParamValue("form", &form, reflect.TypeOf(testValue).Field(0), reflect.ValueOf(testValue).Field(0))
 	if err != nil {

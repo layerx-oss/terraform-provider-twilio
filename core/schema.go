@@ -55,7 +55,7 @@ type SchemaPlus struct {
 	*schema.Schema
 }
 
-func AsList(obj interface{}, conf *options) *schema.Schema {
+func AsList(obj any, conf *options) *schema.Schema {
 	var ret *schema.Schema
 	if item, ok := obj.(*schema.Schema); ok {
 		// scalar type
@@ -85,7 +85,7 @@ func AsString(conf *options) *schema.Schema {
 	return addSchemaOptions(ret, conf)
 }
 
-func AsMap(obj interface{}, conf *options) *schema.Schema {
+func AsMap(obj any, conf *options) *schema.Schema {
 	var ret *schema.Schema
 	if item, ok := obj.(*schema.Schema); ok {
 		ret = &schema.Schema{
@@ -132,7 +132,7 @@ func AsSid(sid SidInterface, conf *options) *schema.Schema {
 		Type: schema.TypeString,
 	}
 	if !conf.Computed {
-		ret.ValidateDiagFunc = func(val interface{}, path cty.Path) diag.Diagnostics {
+		ret.ValidateDiagFunc = func(val any, path cty.Path) diag.Diagnostics {
 			if err := sid.Set(val); err != nil {
 				return diag.FromErr(err)
 			}
