@@ -28,3 +28,10 @@ docs/
 
 coverage.out
 test-report.out
+
+# GoReleaser output
+dist/
+
+# Agent working files
+plan-*.md
+research-*.md

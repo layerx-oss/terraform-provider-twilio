@@ -1,0 +1,20 @@
+version: "2"
+
+run:
+  timeout: 5m
+
+linters:
+  # Enable the standard set (errcheck, govet, ineffassign, staticcheck, unused).
+  default: standard
+  exclusions:
+    # OpenAPI Generator output is auto-generated and must not be hand-edited.
+    paths:
+      - twilio/resources
+
+formatters:
+  enable:
+    - gofmt
+    - goimports
+  exclusions:
+    paths:
+      - twilio/resources
