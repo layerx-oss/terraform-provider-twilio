@@ -3,8 +3,6 @@ package core
 import (
 	"encoding/json"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
 )
 
 func TestNullableStringGet(t *testing.T) {
@@ -12,8 +10,12 @@ func TestNullableStringGet(t *testing.T) {
 	T1 := NullableString{Valid: true, Value: "str"}
 
 	value, ok := T1.Get()
-	assert.Equal(t, true, ok, "got value is not valid")
-	assert.Equal(t, "[str]", value, "got value is not valid")
+	if !ok {
+		t.Error("got value is not valid")
+	}
+	if value != "[str]" {
+		t.Errorf("Get() value = %q, want %q", value, "[str]")
+	}
 }
 
 func TestNullableStringGetEmpty(t *testing.T) {
@@ -21,8 +23,12 @@ func TestNullableStringGetEmpty(t *testing.T) {
 	T1 := NullableString{Valid: true, Value: ""}
 
 	value, ok := T1.Get()
-	assert.Equal(t, true, ok, "got value is not valid")
-	assert.Equal(t, "[]", value, "got value is not valid")
+	if !ok {
+		t.Error("got value is not valid")
+	}
+	if value != "[]" {
+		t.Errorf("Get() value = %q, want %q", value, "[]")
+	}
 }
 
 func TestNullableStringGetNil(t *testing.T) {
@@ -30,7 +36,9 @@ func TestNullableStringGetNil(t *testing.T) {
 	T1 := NullableString{Valid: false, Value: ""}
 
 	_, ok := T1.Get()
-	assert.Equal(t, false, ok, "got value is valid")
+	if ok {
+		t.Error("got value is valid")
+	}
 }
 
 func TestNullableStringGetNativePresentation(t *testing.T) {
@@ -38,8 +46,12 @@ func TestNullableStringGetNativePresentation(t *testing.T) {
 	T1 := NullableString{Valid: true, Value: "str"}
 
 	value, ok := T1.GetNativePresentation()
-	assert.Equal(t, true, ok, "got value is not valid")
-	assert.Equal(t, "str", value, "got value is not valid")
+	if !ok {
+		t.Error("got value is not valid")
+	}
+	if value != "str" {
+		t.Errorf("GetNativePresentation() value = %q, want %q", value, "str")
+	}
 }
 
 func TestNullableStringGetNativePresentationEmpty(t *testing.T) {
@@ -47,8 +59,12 @@ func TestNullableStringGetNativePresentationEmpty(t *testing.T) {
 	T1 := NullableString{Valid: true, Value: ""}
 
 	value, ok := T1.GetNativePresentation()
-	assert.Equal(t, true, ok, "got value is not valid")
-	assert.Equal(t, "", value, "got value is not valid")
+	if !ok {
+		t.Error("got value is not valid")
+	}
+	if value != "" {
+		t.Errorf("GetNativePresentation() value = %q, want %q", value, "")
+	}
 }
 
 func TestNullableStringGetNativePresentationNil(t *testing.T) {
@@ -56,33 +72,51 @@ func TestNullableStringGetNativePresentationNil(t *testing.T) {
 	T1 := NullableString{Valid: false, Value: ""}
 
 	_, ok := T1.GetNativePresentation()
-	assert.Equal(t, false, ok, "got value is valid")
+	if ok {
+		t.Error("got value is valid")
+	}
 }
 
 func TestNullableStringSet(t *testing.T) {
 	var test NullableString
 
 	err := test.Set("[str]")
-	assert.Nil(t, err, "test did not set")
-	assert.True(t, test.Valid, "marshaled value is not valid")
-	assert.Equal(t, "str", test.Value, "marshaled value is not valid")
+	if err != nil {
+		t.Fatalf("test did not set: %v", err)
+	}
+	if !test.Valid {
+		t.Error("marshaled value is not valid")
+	}
+	if test.Value != "str" {
+		t.Errorf("Value = %q, want %q", test.Value, "str")
+	}
 }
 
 func TestNullableStringSetEmpty(t *testing.T) {
 	var test NullableString
 
 	err := test.Set("[]")
-	assert.Nil(t, err, "test did not set")
-	assert.True(t, test.Valid, "marshaled value is not valid")
-	assert.Equal(t, "", test.Value, "marshaled value is not valid")
+	if err != nil {
+		t.Fatalf("test did not set: %v", err)
+	}
+	if !test.Valid {
+		t.Error("marshaled value is not valid")
+	}
+	if test.Value != "" {
+		t.Errorf("Value = %q, want %q", test.Value, "")
+	}
 }
 
 func TestNullableStringSetNil(t *testing.T) {
 	var test NullableString
 
 	err := test.Set("")
-	assert.Nil(t, err, "test did not set")
-	assert.False(t, test.Valid, "marshaled value is valid")
+	if err != nil {
+		t.Fatalf("test did not set: %v", err)
+	}
+	if test.Valid {
+		t.Error("marshaled value is valid")
+	}
 }
 
 func TestNullableStringMarshal(t *testing.T) {
@@ -94,8 +128,12 @@ func TestNullableStringMarshal(t *testing.T) {
 	jsonValue := test{T1: NullableString{Valid: true, Value: "str"}}
 
 	jsonString, err := json.Marshal(jsonValue)
-	assert.Nil(t, err, "test did not marshal")
-	assert.Equal(t, "{\"T1\":\"str\"}", string(jsonString), "marshaled value is not valid")
+	if err != nil {
+		t.Fatalf("test did not marshal: %v", err)
+	}
+	if got := string(jsonString); got != "{\"T1\":\"str\"}" {
+		t.Errorf("marshaled value = %q, want %q", got, "{\"T1\":\"str\"}")
+	}
 }
 
 func TestNullableStringMarshalEmpty(t *testing.T) {
@@ -107,8 +145,12 @@ func TestNullableStringMarshalEmpty(t *testing.T) {
 	jsonValue := test{T1: NullableString{Valid: true, Value: ""}}
 
 	jsonString, err := json.Marshal(jsonValue)
-	assert.Nil(t, err, "test did not marshal")
-	assert.Equal(t, "{\"T1\":\"\"}", string(jsonString), "marshaled value is not valid")
+	if err != nil {
+		t.Fatalf("test did not marshal: %v", err)
+	}
+	if got := string(jsonString); got != "{\"T1\":\"\"}" {
+		t.Errorf("marshaled value = %q, want %q", got, "{\"T1\":\"\"}")
+	}
 }
 
 func TestNullableStringMarshalNil(t *testing.T) {
@@ -120,8 +162,12 @@ func TestNullableStringMarshalNil(t *testing.T) {
 	jsonValue := test{T1: NullableString{Valid: false, Value: ""}}
 
 	jsonString, err := json.Marshal(jsonValue)
-	assert.Nil(t, err, "test did not marshal")
-	assert.Equal(t, "{\"T1\":null}", string(jsonString), "marshaled value is not valid")
+	if err != nil {
+		t.Fatalf("test did not marshal: %v", err)
+	}
+	if got := string(jsonString); got != "{\"T1\":null}" {
+		t.Errorf("marshaled value = %q, want %q", got, "{\"T1\":null}")
+	}
 }
 
 func TestNullableStringUmarshal(t *testing.T) {
@@ -133,9 +179,15 @@ func TestNullableStringUmarshal(t *testing.T) {
 	var jsonValue test
 
 	err := json.Unmarshal([]byte("{\"T1\":\"str\"}"), &jsonValue)
-	assert.Nil(t, err, "test did not unmarshal")
-	assert.True(t, jsonValue.T1.Valid, "marshaled value is not valid")
-	assert.Equal(t, "str", jsonValue.T1.Value, "marshaled value is not valid")
+	if err != nil {
+		t.Fatalf("test did not unmarshal: %v", err)
+	}
+	if !jsonValue.T1.Valid {
+		t.Error("marshaled value is not valid")
+	}
+	if jsonValue.T1.Value != "str" {
+		t.Errorf("Value = %q, want %q", jsonValue.T1.Value, "str")
+	}
 }
 
 func TestNullableStringUmarshalEmpty(t *testing.T) {
@@ -147,9 +199,15 @@ func TestNullableStringUmarshalEmpty(t *testing.T) {
 	var jsonValue test
 
 	err := json.Unmarshal([]byte("{\"T1\":\"\"}"), &jsonValue)
-	assert.Nil(t, err, "test did not unmarshal")
-	assert.True(t, jsonValue.T1.Valid, "marshaled value is not valid")
-	assert.Equal(t, "", jsonValue.T1.Value, "marshaled value is not valid")
+	if err != nil {
+		t.Fatalf("test did not unmarshal: %v", err)
+	}
+	if !jsonValue.T1.Valid {
+		t.Error("marshaled value is not valid")
+	}
+	if jsonValue.T1.Value != "" {
+		t.Errorf("Value = %q, want %q", jsonValue.T1.Value, "")
+	}
 }
 
 func TestNullableStringUmarshalNil(t *testing.T) {
@@ -161,8 +219,12 @@ func TestNullableStringUmarshalNil(t *testing.T) {
 	var jsonValue test
 
 	err := json.Unmarshal([]byte("{\"T1\":null}"), &jsonValue)
-	assert.Nil(t, err, "test did not unmarshal")
-	assert.False(t, jsonValue.T1.Valid, "marshaled value is valid")
+	if err != nil {
+		t.Fatalf("test did not unmarshal: %v", err)
+	}
+	if jsonValue.T1.Valid {
+		t.Error("marshaled value is valid")
+	}
 }
 
 // ---
@@ -172,8 +234,12 @@ func TestNullableBoolGet(t *testing.T) {
 	T1 := NullableBool{Valid: true, Value: true}
 
 	value, ok := T1.Get()
-	assert.Equal(t, true, ok, "got value is not valid")
-	assert.Equal(t, "true", value, "got value is not valid")
+	if !ok {
+		t.Error("got value is not valid")
+	}
+	if value != "true" {
+		t.Errorf("Get() value = %q, want %q", value, "true")
+	}
 }
 
 func TestNullableBoolGetFalse(t *testing.T) {
@@ -181,8 +247,12 @@ func TestNullableBoolGetFalse(t *testing.T) {
 	T1 := NullableBool{Valid: true, Value: false}
 
 	value, ok := T1.Get()
-	assert.Equal(t, true, ok, "got value is not valid")
-	assert.Equal(t, "false", value, "got value is not valid")
+	if !ok {
+		t.Error("got value is not valid")
+	}
+	if value != "false" {
+		t.Errorf("Get() value = %q, want %q", value, "false")
+	}
 }
 
 func TestNullableBoolGetNil(t *testing.T) {
@@ -190,7 +260,9 @@ func TestNullableBoolGetNil(t *testing.T) {
 	T1 := NullableBool{Valid: false, Value: false}
 
 	_, ok := T1.Get()
-	assert.Equal(t, false, ok, "got value is valid")
+	if ok {
+		t.Error("got value is valid")
+	}
 }
 
 func TestNullableBoolGetNativePresentation(t *testing.T) {
@@ -198,8 +270,12 @@ func TestNullableBoolGetNativePresentation(t *testing.T) {
 	T1 := NullableBool{Valid: true, Value: true}
 
 	value, ok := T1.GetNativePresentation()
-	assert.Equal(t, true, ok, "got value is not valid")
-	assert.Equal(t, true, value, "got value is not valid")
+	if !ok {
+		t.Error("got value is not valid")
+	}
+	if value != true {
+		t.Errorf("GetNativePresentation() value = %v, want %v", value, true)
+	}
 }
 
 func TestNullableBoolGetNativePresentationFalse(t *testing.T) {
@@ -207,8 +283,12 @@ func TestNullableBoolGetNativePresentationFalse(t *testing.T) {
 	T1 := NullableBool{Valid: true, Value: false}
 
 	value, ok := T1.GetNativePresentation()
-	assert.Equal(t, true, ok, "got value is not valid")
-	assert.Equal(t, false, value, "got value is not valid")
+	if !ok {
+		t.Error("got value is not valid")
+	}
+	if value != false {
+		t.Errorf("GetNativePresentation() value = %v, want %v", value, false)
+	}
 }
 
 func TestNullableBoolGetNativePresentationNil(t *testing.T) {
@@ -216,33 +296,51 @@ func TestNullableBoolGetNativePresentationNil(t *testing.T) {
 	T1 := NullableBool{Valid: false, Value: false}
 
 	_, ok := T1.GetNativePresentation()
-	assert.Equal(t, false, ok, "got value is valid")
+	if ok {
+		t.Error("got value is valid")
+	}
 }
 
 func TestNullableBoolSet(t *testing.T) {
 	var test NullableBool
 
 	err := test.Set("true")
-	assert.Nil(t, err, "test did not set")
-	assert.True(t, test.Valid, "marshaled value is not valid")
-	assert.Equal(t, true, test.Value, "marshaled value is not valid")
+	if err != nil {
+		t.Fatalf("test did not set: %v", err)
+	}
+	if !test.Valid {
+		t.Error("marshaled value is not valid")
+	}
+	if test.Value != true {
+		t.Errorf("Value = %v, want %v", test.Value, true)
+	}
 }
 
 func TestNullableBoolSetFalse(t *testing.T) {
 	var test NullableBool
 
 	err := test.Set("false")
-	assert.Nil(t, err, "test did not set")
-	assert.True(t, test.Valid, "marshaled value is not valid")
-	assert.Equal(t, false, test.Value, "marshaled value is not valid")
+	if err != nil {
+		t.Fatalf("test did not set: %v", err)
+	}
+	if !test.Valid {
+		t.Error("marshaled value is not valid")
+	}
+	if test.Value != false {
+		t.Errorf("Value = %v, want %v", test.Value, false)
+	}
 }
 
 func TestNullableBoolSetNil(t *testing.T) {
 	var test NullableBool
 
 	err := test.Set("")
-	assert.Nil(t, err, "test did not set")
-	assert.False(t, test.Valid, "marshaled value is valid")
+	if err != nil {
+		t.Fatalf("test did not set: %v", err)
+	}
+	if test.Valid {
+		t.Error("marshaled value is valid")
+	}
 }
 
 func TestNullableBoolMarshal(t *testing.T) {
@@ -254,8 +352,12 @@ func TestNullableBoolMarshal(t *testing.T) {
 	jsonValue := test{T1: NullableBool{Valid: true, Value: true}}
 
 	jsonString, err := json.Marshal(jsonValue)
-	assert.Nil(t, err, "test did not marshal")
-	assert.Equal(t, "{\"T1\":true}", string(jsonString), "marshaled value is not valid")
+	if err != nil {
+		t.Fatalf("test did not marshal: %v", err)
+	}
+	if got := string(jsonString); got != "{\"T1\":true}" {
+		t.Errorf("marshaled value = %q, want %q", got, "{\"T1\":true}")
+	}
 }
 
 func TestNullableBoolMarshalFalse(t *testing.T) {
@@ -267,8 +369,12 @@ func TestNullableBoolMarshalFalse(t *testing.T) {
 	jsonValue := test{T1: NullableBool{Valid: true, Value: false}}
 
 	jsonString, err := json.Marshal(jsonValue)
-	assert.Nil(t, err, "test did not marshal")
-	assert.Equal(t, "{\"T1\":false}", string(jsonString), "marshaled value is not valid")
+	if err != nil {
+		t.Fatalf("test did not marshal: %v", err)
+	}
+	if got := string(jsonString); got != "{\"T1\":false}" {
+		t.Errorf("marshaled value = %q, want %q", got, "{\"T1\":false}")
+	}
 }
 
 func TestNullableBoolMarshalNil(t *testing.T) {
@@ -280,8 +386,12 @@ func TestNullableBoolMarshalNil(t *testing.T) {
 	jsonValue := test{T1: NullableBool{Valid: false, Value: false}}
 
 	jsonString, err := json.Marshal(jsonValue)
-	assert.Nil(t, err, "test did not marshal")
-	assert.Equal(t, "{\"T1\":null}", string(jsonString), "marshaled value is not valid")
+	if err != nil {
+		t.Fatalf("test did not marshal: %v", err)
+	}
+	if got := string(jsonString); got != "{\"T1\":null}" {
+		t.Errorf("marshaled value = %q, want %q", got, "{\"T1\":null}")
+	}
 }
 
 func TestNullableBoolUmarshal(t *testing.T) {
@@ -293,9 +403,15 @@ func TestNullableBoolUmarshal(t *testing.T) {
 	var jsonValue test
 
 	err := json.Unmarshal([]byte("{\"T1\":true}"), &jsonValue)
-	assert.Nil(t, err, "test did not unmarshal")
-	assert.True(t, jsonValue.T1.Valid, "marshaled value is not valid")
-	assert.Equal(t, true, jsonValue.T1.Value, "marshaled value is not valid")
+	if err != nil {
+		t.Fatalf("test did not unmarshal: %v", err)
+	}
+	if !jsonValue.T1.Valid {
+		t.Error("marshaled value is not valid")
+	}
+	if jsonValue.T1.Value != true {
+		t.Errorf("Value = %v, want %v", jsonValue.T1.Value, true)
+	}
 }
 
 func TestNullableBoolUmarshalFalse(t *testing.T) {
@@ -307,9 +423,15 @@ func TestNullableBoolUmarshalFalse(t *testing.T) {
 	var jsonValue test
 
 	err := json.Unmarshal([]byte("{\"T1\":false}"), &jsonValue)
-	assert.Nil(t, err, "test did not unmarshal")
-	assert.True(t, jsonValue.T1.Valid, "marshaled value is not valid")
-	assert.Equal(t, false, jsonValue.T1.Value, "marshaled value is not valid")
+	if err != nil {
+		t.Fatalf("test did not unmarshal: %v", err)
+	}
+	if !jsonValue.T1.Valid {
+		t.Error("marshaled value is not valid")
+	}
+	if jsonValue.T1.Value != false {
+		t.Errorf("Value = %v, want %v", jsonValue.T1.Value, false)
+	}
 }
 
 func TestNullableBoolUmarshalNil(t *testing.T) {
@@ -321,8 +443,12 @@ func TestNullableBoolUmarshalNil(t *testing.T) {
 	var jsonValue test
 
 	err := json.Unmarshal([]byte("{\"T1\":null}"), &jsonValue)
-	assert.Nil(t, err, "test did not unmarshal")
-	assert.False(t, jsonValue.T1.Valid, "marshaled value is valid")
+	if err != nil {
+		t.Fatalf("test did not unmarshal: %v", err)
+	}
+	if jsonValue.T1.Valid {
+		t.Error("marshaled value is valid")
+	}
 }
 
 // ---
@@ -332,8 +458,12 @@ func TestNullableIntGet(t *testing.T) {
 	T1 := NullableInt{Valid: true, Value: 1}
 
 	value, ok := T1.Get()
-	assert.Equal(t, true, ok, "got value is not valid")
-	assert.Equal(t, "1", value, "got value is not valid")
+	if !ok {
+		t.Error("got value is not valid")
+	}
+	if value != "1" {
+		t.Errorf("Get() value = %q, want %q", value, "1")
+	}
 }
 
 func TestNullableIntGet0(t *testing.T) {
@@ -341,8 +471,12 @@ func TestNullableIntGet0(t *testing.T) {
 	T1 := NullableInt{Valid: true, Value: 0}
 
 	value, ok := T1.Get()
-	assert.Equal(t, true, ok, "got value is not valid")
-	assert.Equal(t, "0", value, "got value is not valid")
+	if !ok {
+		t.Error("got value is not valid")
+	}
+	if value != "0" {
+		t.Errorf("Get() value = %q, want %q", value, "0")
+	}
 }
 
 func TestNullableIntGetNil(t *testing.T) {
@@ -350,7 +484,9 @@ func TestNullableIntGetNil(t *testing.T) {
 	T1 := NullableInt{Valid: false, Value: 0}
 
 	_, ok := T1.Get()
-	assert.Equal(t, false, ok, "got value is valid")
+	if ok {
+		t.Error("got value is valid")
+	}
 }
 
 func TestNullableIntGetNativePresentation(t *testing.T) {
@@ -358,8 +494,12 @@ func TestNullableIntGetNativePresentation(t *testing.T) {
 	T1 := NullableInt{Valid: true, Value: 1}
 
 	value, ok := T1.GetNativePresentation()
-	assert.Equal(t, true, ok, "got value is not valid")
-	assert.Equal(t, int64(1), value, "got value is not valid")
+	if !ok {
+		t.Error("got value is not valid")
+	}
+	if value != int64(1) {
+		t.Errorf("GetNativePresentation() value = %v, want %v", value, int64(1))
+	}
 }
 
 func TestNullableIntGetNativePresentation0(t *testing.T) {
@@ -367,8 +507,12 @@ func TestNullableIntGetNativePresentation0(t *testing.T) {
 	T1 := NullableInt{Valid: true, Value: 0}
 
 	value, ok := T1.GetNativePresentation()
-	assert.Equal(t, true, ok, "got value is not valid")
-	assert.Equal(t, int64(0), value, "got value is not valid")
+	if !ok {
+		t.Error("got value is not valid")
+	}
+	if value != int64(0) {
+		t.Errorf("GetNativePresentation() value = %v, want %v", value, int64(0))
+	}
 }
 
 func TestNullableIntGetNativePresentationNil(t *testing.T) {
@@ -376,33 +520,51 @@ func TestNullableIntGetNativePresentationNil(t *testing.T) {
 	T1 := NullableInt{Valid: false, Value: 0}
 
 	_, ok := T1.GetNativePresentation()
-	assert.Equal(t, false, ok, "got value is valid")
+	if ok {
+		t.Error("got value is valid")
+	}
 }
 
 func TestNullableIntSet(t *testing.T) {
 	var test NullableInt
 
 	err := test.Set("1")
-	assert.Nil(t, err, "test did not set")
-	assert.True(t, test.Valid, "marshaled value is not valid")
-	assert.Equal(t, int64(1), test.Value, "marshaled value is not valid")
+	if err != nil {
+		t.Fatalf("test did not set: %v", err)
+	}
+	if !test.Valid {
+		t.Error("marshaled value is not valid")
+	}
+	if test.Value != int64(1) {
+		t.Errorf("Value = %v, want %v", test.Value, int64(1))
+	}
 }
 
 func TestNullableIntSet0(t *testing.T) {
 	var test NullableInt
 
 	err := test.Set("0")
-	assert.Nil(t, err, "test did not set")
-	assert.True(t, test.Valid, "marshaled value is not valid")
-	assert.Equal(t, int64(0), test.Value, "marshaled value is not valid")
+	if err != nil {
+		t.Fatalf("test did not set: %v", err)
+	}
+	if !test.Valid {
+		t.Error("marshaled value is not valid")
+	}
+	if test.Value != int64(0) {
+		t.Errorf("Value = %v, want %v", test.Value, int64(0))
+	}
 }
 
 func TestNullableIntSetNil(t *testing.T) {
 	var test NullableInt
 
 	err := test.Set("")
-	assert.Nil(t, err, "test did not set")
-	assert.False(t, test.Valid, "marshaled value is valid")
+	if err != nil {
+		t.Fatalf("test did not set: %v", err)
+	}
+	if test.Valid {
+		t.Error("marshaled value is valid")
+	}
 }
 
 func TestNullableIntMarshal(t *testing.T) {
@@ -414,8 +576,12 @@ func TestNullableIntMarshal(t *testing.T) {
 	jsonValue := test{T1: NullableInt{Valid: true, Value: 1}}
 
 	jsonString, err := json.Marshal(jsonValue)
-	assert.Nil(t, err, "test did not marshal")
-	assert.Equal(t, "{\"T1\":1}", string(jsonString), "marshaled value is not valid")
+	if err != nil {
+		t.Fatalf("test did not marshal: %v", err)
+	}
+	if got := string(jsonString); got != "{\"T1\":1}" {
+		t.Errorf("marshaled value = %q, want %q", got, "{\"T1\":1}")
+	}
 }
 
 func TestNullableIntMarshal0(t *testing.T) {
@@ -427,8 +593,12 @@ func TestNullableIntMarshal0(t *testing.T) {
 	jsonValue := test{T1: NullableInt{Valid: true, Value: 0}}
 
 	jsonString, err := json.Marshal(jsonValue)
-	assert.Nil(t, err, "test did not marshal")
-	assert.Equal(t, "{\"T1\":0}", string(jsonString), "marshaled value is not valid")
+	if err != nil {
+		t.Fatalf("test did not marshal: %v", err)
+	}
+	if got := string(jsonString); got != "{\"T1\":0}" {
+		t.Errorf("marshaled value = %q, want %q", got, "{\"T1\":0}")
+	}
 }
 
 func TestNullableIntMarshalNil(t *testing.T) {
@@ -440,8 +610,12 @@ func TestNullableIntMarshalNil(t *testing.T) {
 	jsonValue := test{T1: NullableInt{Valid: false, Value: 0}}
 
 	jsonString, err := json.Marshal(jsonValue)
-	assert.Nil(t, err, "test did not marshal")
-	assert.Equal(t, "{\"T1\":null}", string(jsonString), "marshaled value is not valid")
+	if err != nil {
+		t.Fatalf("test did not marshal: %v", err)
+	}
+	if got := string(jsonString); got != "{\"T1\":null}" {
+		t.Errorf("marshaled value = %q, want %q", got, "{\"T1\":null}")
+	}
 }
 
 func TestNullableIntUmarshal(t *testing.T) {
@@ -453,9 +627,15 @@ func TestNullableIntUmarshal(t *testing.T) {
 	var jsonValue test
 
 	err := json.Unmarshal([]byte("{\"T1\":1}"), &jsonValue)
-	assert.Nil(t, err, "test did not unmarshal")
-	assert.True(t, jsonValue.T1.Valid, "marshaled value is not valid")
-	assert.Equal(t, int64(1), jsonValue.T1.Value, "marshaled value is not valid")
+	if err != nil {
+		t.Fatalf("test did not unmarshal: %v", err)
+	}
+	if !jsonValue.T1.Valid {
+		t.Error("marshaled value is not valid")
+	}
+	if jsonValue.T1.Value != int64(1) {
+		t.Errorf("Value = %v, want %v", jsonValue.T1.Value, int64(1))
+	}
 }
 
 func TestNullableIntUmarshal0(t *testing.T) {
@@ -467,9 +647,15 @@ func TestNullableIntUmarshal0(t *testing.T) {
 	var jsonValue test
 
 	err := json.Unmarshal([]byte("{\"T1\":0}"), &jsonValue)
-	assert.Nil(t, err, "test did not unmarshal")
-	assert.True(t, jsonValue.T1.Valid, "marshaled value is not valid")
-	assert.Equal(t, int64(0), jsonValue.T1.Value, "marshaled value is not valid")
+	if err != nil {
+		t.Fatalf("test did not unmarshal: %v", err)
+	}
+	if !jsonValue.T1.Valid {
+		t.Error("marshaled value is not valid")
+	}
+	if jsonValue.T1.Value != int64(0) {
+		t.Errorf("Value = %v, want %v", jsonValue.T1.Value, int64(0))
+	}
 }
 
 func TestNullableIntUmarshalNil(t *testing.T) {
@@ -481,8 +667,12 @@ func TestNullableIntUmarshalNil(t *testing.T) {
 	var jsonValue test
 
 	err := json.Unmarshal([]byte("{\"T1\":null}"), &jsonValue)
-	assert.Nil(t, err, "test did not unmarshal")
-	assert.False(t, jsonValue.T1.Valid, "marshaled value is valid")
+	if err != nil {
+		t.Fatalf("test did not unmarshal: %v", err)
+	}
+	if jsonValue.T1.Valid {
+		t.Error("marshaled value is valid")
+	}
 }
 
 // ---
@@ -492,8 +682,12 @@ func TestNullableFloatGet(t *testing.T) {
 	T1 := NullableFloat{Valid: true, Value: 1}
 
 	value, ok := T1.Get()
-	assert.Equal(t, true, ok, "got value is not valid")
-	assert.Equal(t, "1", value, "got value is not valid")
+	if !ok {
+		t.Error("got value is not valid")
+	}
+	if value != "1" {
+		t.Errorf("Get() value = %q, want %q", value, "1")
+	}
 }
 
 func TestNullableFloatGet0(t *testing.T) {
@@ -501,8 +695,12 @@ func TestNullableFloatGet0(t *testing.T) {
 	T1 := NullableFloat{Valid: true, Value: 0}
 
 	value, ok := T1.Get()
-	assert.Equal(t, true, ok, "got value is not valid")
-	assert.Equal(t, "0", value, "got value is not valid")
+	if !ok {
+		t.Error("got value is not valid")
+	}
+	if value != "0" {
+		t.Errorf("Get() value = %q, want %q", value, "0")
+	}
 }
 
 func TestNullableFloatGetNil(t *testing.T) {
@@ -510,7 +708,9 @@ func TestNullableFloatGetNil(t *testing.T) {
 	T1 := NullableFloat{Valid: false, Value: 0}
 
 	_, ok := T1.Get()
-	assert.Equal(t, false, ok, "got value is valid")
+	if ok {
+		t.Error("got value is valid")
+	}
 }
 
 func TestNullableFloatGetNativePresentation(t *testing.T) {
@@ -518,8 +718,12 @@ func TestNullableFloatGetNativePresentation(t *testing.T) {
 	T1 := NullableFloat{Valid: true, Value: 1}
 
 	value, ok := T1.GetNativePresentation()
-	assert.Equal(t, true, ok, "got value is not valid")
-	assert.Equal(t, 1., value, "got value is not valid")
+	if !ok {
+		t.Error("got value is not valid")
+	}
+	if value != 1. {
+		t.Errorf("GetNativePresentation() value = %v, want %v", value, 1.)
+	}
 }
 
 func TestNullableFloatGetNativePresentation0(t *testing.T) {
@@ -527,8 +731,12 @@ func TestNullableFloatGetNativePresentation0(t *testing.T) {
 	T1 := NullableFloat{Valid: true, Value: 0}
 
 	value, ok := T1.GetNativePresentation()
-	assert.Equal(t, true, ok, "got value is not valid")
-	assert.Equal(t, 0., value, "got value is not valid")
+	if !ok {
+		t.Error("got value is not valid")
+	}
+	if value != 0. {
+		t.Errorf("GetNativePresentation() value = %v, want %v", value, 0.)
+	}
 }
 
 func TestNullableFloatGetNativePresentationNil(t *testing.T) {
@@ -536,33 +744,51 @@ func TestNullableFloatGetNativePresentationNil(t *testing.T) {
 	T1 := NullableFloat{Valid: false, Value: 0}
 
 	_, ok := T1.GetNativePresentation()
-	assert.Equal(t, false, ok, "got value is valid")
+	if ok {
+		t.Error("got value is valid")
+	}
 }
 
 func TestNullableFloatSet(t *testing.T) {
 	var test NullableFloat
 
 	err := test.Set("1")
-	assert.Nil(t, err, "test did not set")
-	assert.True(t, test.Valid, "marshaled value is not valid")
-	assert.Equal(t, 1., test.Value, "marshaled value is not valid")
+	if err != nil {
+		t.Fatalf("test did not set: %v", err)
+	}
+	if !test.Valid {
+		t.Error("marshaled value is not valid")
+	}
+	if test.Value != 1. {
+		t.Errorf("Value = %v, want %v", test.Value, 1.)
+	}
 }
 
 func TestNullableFloatSet0(t *testing.T) {
 	var test NullableFloat
 
 	err := test.Set("0")
-	assert.Nil(t, err, "test did not set")
-	assert.True(t, test.Valid, "marshaled value is not valid")
-	assert.Equal(t, 0., test.Value, "marshaled value is not valid")
+	if err != nil {
+		t.Fatalf("test did not set: %v", err)
+	}
+	if !test.Valid {
+		t.Error("marshaled value is not valid")
+	}
+	if test.Value != 0. {
+		t.Errorf("Value = %v, want %v", test.Value, 0.)
+	}
 }
 
 func TestNullableFloatSetNil(t *testing.T) {
 	var test NullableFloat
 
 	err := test.Set("")
-	assert.Nil(t, err, "test did not set")
-	assert.False(t, test.Valid, "marshaled value is valid")
+	if err != nil {
+		t.Fatalf("test did not set: %v", err)
+	}
+	if test.Valid {
+		t.Error("marshaled value is valid")
+	}
 }
 
 func TestNullableFloatMarshal(t *testing.T) {
@@ -574,8 +800,12 @@ func TestNullableFloatMarshal(t *testing.T) {
 	jsonValue := test{T1: NullableFloat{Valid: true, Value: 1}}
 
 	jsonString, err := json.Marshal(jsonValue)
-	assert.Nil(t, err, "test did not marshal")
-	assert.Equal(t, "{\"T1\":1}", string(jsonString), "marshaled value is not valid")
+	if err != nil {
+		t.Fatalf("test did not marshal: %v", err)
+	}
+	if got := string(jsonString); got != "{\"T1\":1}" {
+		t.Errorf("marshaled value = %q, want %q", got, "{\"T1\":1}")
+	}
 }
 
 func TestNullableFloatMarshal0(t *testing.T) {
@@ -587,8 +817,12 @@ func TestNullableFloatMarshal0(t *testing.T) {
 	jsonValue := test{T1: NullableFloat{Valid: true, Value: 0}}
 
 	jsonString, err := json.Marshal(jsonValue)
-	assert.Nil(t, err, "test did not marshal")
-	assert.Equal(t, "{\"T1\":0}", string(jsonString), "marshaled value is not valid")
+	if err != nil {
+		t.Fatalf("test did not marshal: %v", err)
+	}
+	if got := string(jsonString); got != "{\"T1\":0}" {
+		t.Errorf("marshaled value = %q, want %q", got, "{\"T1\":0}")
+	}
 }
 
 func TestNullableFloatMarshalNil(t *testing.T) {
@@ -600,8 +834,12 @@ func TestNullableFloatMarshalNil(t *testing.T) {
 	jsonValue := test{T1: NullableFloat{Valid: false, Value: 0}}
 
 	jsonString, err := json.Marshal(jsonValue)
-	assert.Nil(t, err, "test did not marshal")
-	assert.Equal(t, "{\"T1\":null}", string(jsonString), "marshaled value is not valid")
+	if err != nil {
+		t.Fatalf("test did not marshal: %v", err)
+	}
+	if got := string(jsonString); got != "{\"T1\":null}" {
+		t.Errorf("marshaled value = %q, want %q", got, "{\"T1\":null}")
+	}
 }
 
 func TestNullableFloatUmarshal(t *testing.T) {
@@ -613,9 +851,15 @@ func TestNullableFloatUmarshal(t *testing.T) {
 	var jsonValue test
 
 	err := json.Unmarshal([]byte("{\"T1\":1}"), &jsonValue)
-	assert.Nil(t, err, "test did not unmarshal")
-	assert.True(t, jsonValue.T1.Valid, "marshaled value is not valid")
-	assert.Equal(t, 1., jsonValue.T1.Value, "marshaled value is not valid")
+	if err != nil {
+		t.Fatalf("test did not unmarshal: %v", err)
+	}
+	if !jsonValue.T1.Valid {
+		t.Error("marshaled value is not valid")
+	}
+	if jsonValue.T1.Value != 1. {
+		t.Errorf("Value = %v, want %v", jsonValue.T1.Value, 1.)
+	}
 }
 
 func TestNullableFloatUmarshal0(t *testing.T) {
@@ -627,9 +871,15 @@ func TestNullableFloatUmarshal0(t *testing.T) {
 	var jsonValue test
 
 	err := json.Unmarshal([]byte("{\"T1\":0}"), &jsonValue)
-	assert.Nil(t, err, "test did not unmarshal")
-	assert.True(t, jsonValue.T1.Valid, "marshaled value is not valid")
-	assert.Equal(t, 0., jsonValue.T1.Value, "marshaled value is not valid")
+	if err != nil {
+		t.Fatalf("test did not unmarshal: %v", err)
+	}
+	if !jsonValue.T1.Valid {
+		t.Error("marshaled value is not valid")
+	}
+	if jsonValue.T1.Value != 0. {
+		t.Errorf("Value = %v, want %v", jsonValue.T1.Value, 0.)
+	}
 }
 
 func TestNullableFloatUmarshalNil(t *testing.T) {
@@ -641,6 +891,10 @@ func TestNullableFloatUmarshalNil(t *testing.T) {
 	var jsonValue test
 
 	err := json.Unmarshal([]byte("{\"T1\":null}"), &jsonValue)
-	assert.Nil(t, err, "test did not unmarshal")
-	assert.False(t, jsonValue.T1.Valid, "marshaled value is valid")
+	if err != nil {
+		t.Fatalf("test did not unmarshal: %v", err)
+	}
+	if jsonValue.T1.Valid {
+		t.Error("marshaled value is valid")
+	}
 }
