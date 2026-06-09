@@ -111,6 +111,23 @@ func TestProcessFormValueArray(t *testing.T) {
 	}
 }
 
+func TestProcessFormValueSliceElementError(t *testing.T) {
+	form := url.Values{}
+
+	// A slice whose elements are arrays cannot be encoded, so the error from
+	// processing an element must propagate (it used to be silently swallowed).
+	type testStruct struct {
+		a [][1]int
+	}
+
+	testValue := testStruct{a: [][1]int{{1}}}
+
+	err := processParamValue("form", &form, reflect.TypeOf(testValue).Field(0), reflect.ValueOf(testValue).Field(0))
+	if err == nil {
+		t.Error("ProcessFormValue succeeded, want the element error to propagate")
+	}
+}
+
 func TestProcessFormValueBasic(t *testing.T) {
 	form := url.Values{}
 
