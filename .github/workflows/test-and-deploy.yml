@@ -90,6 +90,15 @@ jobs:
           EOF
           terraform -chdir="$workdir" init
 
+      - name: Validate examples
+        run: |
+          set -euo pipefail
+          for dir in $(find examples -name '*.tf' -printf '%h\n' | sort -u); do
+            echo "== validating $dir =="
+            terraform -chdir="$dir" init -input=false -no-color >/dev/null
+            terraform -chdir="$dir" validate -no-color
+          done
+
   # NOTE: Acceptance tests (make testacc / TF_ACC) hit the real Twilio API and
   # require credentials this fork does not provision, so they are intentionally
   # NOT run in CI (they would always fail). The `make testacc` target remains for
