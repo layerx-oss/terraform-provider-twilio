@@ -1,7 +1,7 @@
 name: Test and Deploy
 on:
   push:
-    branches: [ '*' ]
+    branches: [ main ]
     tags: [ 'v*' ]
   pull_request:
     branches: [ main ]
@@ -10,109 +10,143 @@ on:
     - cron: '0 15 * * 1-5'
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   test:
     name: Test
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    strategy:
-      matrix:
-        go: [ '1.18', '1.19', '1.20' ]
     env:
       TF_INPUT: false
     steps:
-      - name: Checkout terraform-provider-twilio
-        uses: actions/checkout@v3
-        with:
-          # Disabling shallow clone is recommended for improving relevancy of reporting
-          fetch-depth: 0
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Set up Go
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v5
         with:
-          go-version: ${{ matrix.go }}
-        id: go
+          go-version-file: go.mod
+          cache: true
+
+      - name: Build
+        run: go build ./...
+
+      - name: Test
+        run: go test ./... -timeout=120s
+
+  # Validates the distribution path that this fork actually relies on:
+  # `make install` into the local filesystem mirror, resolved by Terraform via
+  # source address registry.terraform.io/layerx/twilio. Needs no Twilio secrets,
+  # so it runs on every trigger (including PRs) and guards the mirror layout,
+  # binary name, and source address against regressions.
+  install-verify:
+    name: Install (filesystem mirror) Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
 
       - name: Set up Terraform
-        uses: hashicorp/setup-terraform@v2
+        uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: 1.0.0
           terraform_wrapper: false
 
-      - name: Run tests
-        run: make install test
+      - name: Install provider into local filesystem mirror
+        run: make install
 
-      - name: Run Cluster Tests
-        if: ${{ (github.ref == 'refs/heads/main' || github.ref_type == 'tag') && github.event_name != 'pull_request' }}
-        env:
-          TWILIO_ACCOUNT_SID: ${{ secrets.ACCOUNT_SID }}
-          TWILIO_API_SECRET: ${{ secrets.TWILIO_CLUSTER_TEST_API_KEY_SECRET }}
-          TWILIO_API_KEY: ${{ secrets.TWILIO_CLUSTER_TEST_API_KEY }}
+      - name: Verify Terraform resolves the provider from the mirror
+        run: |
+          set -euo pipefail
+          cat > "$HOME/.terraformrc" <<EOF
+          provider_installation {
+            filesystem_mirror {
+              path    = "$HOME/.terraform.d/plugins"
+              include = ["registry.terraform.io/layerx/*"]
+            }
+            direct {
+              exclude = ["registry.terraform.io/layerx/*"]
+            }
+          }
+          EOF
+          workdir="$(mktemp -d)"
+          cat > "$workdir/main.tf" <<'EOF'
+          terraform {
+            required_providers {
+              twilio = {
+                source  = "registry.terraform.io/layerx/twilio"
+                version = "0.18.46"
+              }
+            }
+          }
+          EOF
+          terraform -chdir="$workdir" init
+
+  # Acceptance tests hit the real Twilio API and create billable resources, so
+  # they never run on PRs. They run on the weekday schedule and on-demand
+  # (workflow_dispatch) to catch regressions on main early, and on release tags
+  # as a pre-publish gate.
+  acctest:
+    name: Acceptance Test
+    if: >-
+      github.event_name == 'schedule' ||
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'push' && github.ref_type == 'tag')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      TF_INPUT: false
+      TWILIO_ACCOUNT_SID: ${{ secrets.ACCOUNT_SID }}
+      TWILIO_API_SECRET: ${{ secrets.TWILIO_CLUSTER_TEST_API_KEY_SECRET }}
+      TWILIO_API_KEY: ${{ secrets.TWILIO_CLUSTER_TEST_API_KEY }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_wrapper: false
+
+      - name: Run acceptance tests
         run: make testacc
-
-      - name: Run Test Coverage
-        if: ${{ (github.event_name == 'pull_request' || github.ref_type == 'branch') && !github.event.pull_request.head.repo.fork && matrix.go == '1.18'}}
-        run: make test-cover
-
-      - name: Install SonarCloud scanner and run analysis
-        if: ${{ (github.event_name == 'pull_request' || github.ref_type == 'branch') && !github.event.pull_request.head.repo.fork && matrix.go == '1.18' }}
-        uses: SonarSource/sonarcloud-github-action@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   deploy:
     name: Deploy
-    if: success() && github.ref_type == 'tag'
-    needs: [ test ]
+    if: github.event_name == 'push' && github.ref_type == 'tag'
+    needs: [ test, install-verify, acctest ]
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
-      - name: Unshallow
-        run: git fetch --prune --unshallow
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - name: Set up Go
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v5
         with:
-          go-version: 1.18
-      - name: Import GPG key
-        id: import_gpg
-        uses: crazy-max/ghaction-import-gpg@v5
-        with:
-          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
-          passphrase: ${{ secrets.PASSPHRASE }}
-      - name: Create GitHub Release
-        uses: sendgrid/dx-automator/actions/release@main
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          go-version-file: go.mod
+
       - name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@v2.5.0
+        uses: goreleaser/goreleaser-action@v6
         with:
-          version: '~> v1'
+          version: '~> v2'
           args: release --clean
         env:
-          GPG_FINGERPRINT: ${{ steps.import_gpg.outputs.fingerprint }}
-          # GitHub sets this automatically
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Submit metric to Datadog
-        uses: sendgrid/dx-automator/actions/datadog-release-metric@main
-        env:
-          DD_API_KEY: ${{ secrets.DATADOG_API_KEY }}
-
-  notify-on-failure:
-    name: Slack notify on failure
-    if: failure() && github.event_name != 'pull_request' && (github.ref == 'refs/heads/main' || github.ref_type == 'tag')
-    needs: [ test, deploy ]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: rtCamp/action-slack-notify@v2
-        env:
-          SLACK_COLOR: failure
-          SLACK_ICON_EMOJI: ':github:'
-          SLACK_MESSAGE: ${{ format('Test *{0}*, Deploy *{1}*, {2}/{3}/actions/runs/{4}', needs.test.result, needs.deploy.result, github.server_url, github.repository, github.run_id) }}
-          SLACK_TITLE: Action Failure - ${{ github.repository }}
-          SLACK_USERNAME: GitHub Actions
-          SLACK_MSG_AUTHOR: twilio-dx
-          SLACK_FOOTER: Posted automatically using GitHub Actions
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-          MSG_MINIMAL: true
