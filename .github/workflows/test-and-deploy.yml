@@ -90,45 +90,16 @@ jobs:
           EOF
           terraform -chdir="$workdir" init
 
-  # Acceptance tests hit the real Twilio API and create billable resources, so
-  # they never run on PRs. They run on the weekday schedule and on-demand
-  # (workflow_dispatch) to catch regressions on main early, and on release tags
-  # as a pre-publish gate.
-  acctest:
-    name: Acceptance Test
-    if: >-
-      github.event_name == 'schedule' ||
-      github.event_name == 'workflow_dispatch' ||
-      (github.event_name == 'push' && github.ref_type == 'tag')
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    env:
-      TF_INPUT: false
-      TWILIO_ACCOUNT_SID: ${{ secrets.ACCOUNT_SID }}
-      TWILIO_API_SECRET: ${{ secrets.TWILIO_CLUSTER_TEST_API_KEY_SECRET }}
-      TWILIO_API_KEY: ${{ secrets.TWILIO_CLUSTER_TEST_API_KEY }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version-file: go.mod
-          cache: true
-
-      - name: Set up Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_wrapper: false
-
-      - name: Run acceptance tests
-        run: make testacc
+  # NOTE: Acceptance tests (make testacc / TF_ACC) hit the real Twilio API and
+  # require credentials this fork does not provision, so they are intentionally
+  # NOT run in CI (they would always fail). The `make testacc` target remains for
+  # local runs. The proper path to secret-free CI coverage is mock-based tests
+  # (see issue/follow-up); add a CI job once that exists.
 
   deploy:
     name: Deploy
     if: github.event_name == 'push' && github.ref_type == 'tag'
-    needs: [ test, install-verify, acctest ]
+    needs: [ test, install-verify ]
     runs-on: ubuntu-latest
     permissions:
       contents: write
