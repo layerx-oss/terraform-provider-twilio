@@ -24,9 +24,10 @@ func TestAccServerlessSetup_basic(t *testing.T) {
 
 	var serviceBefore, serviceAfter openapi.ServerlessV1Environment
 
+	setupMockProvider(t)
+
 	resource.Test(t, resource.TestCase{
-		IsUnitTest:                false,
-		PreCheck:                  func() { testAccPreCheck(t) },
+		IsUnitTest:                true,
 		ProviderFactories:         testAccProviderFactories,
 		PreventPostDestroyRefresh: false,
 		CheckDestroy:              testAccServerlessServiceDestroy,

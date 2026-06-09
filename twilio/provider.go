@@ -3,6 +3,7 @@ package twilio
 
 import (
 	"context"
+	"net/http"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -10,7 +11,14 @@ import (
 	twilio "github.com/twilio/terraform-provider-twilio/client"
 	"github.com/twilio/terraform-provider-twilio/twilio/resources"
 	client "github.com/twilio/twilio-go"
+	twclient "github.com/twilio/twilio-go/client"
 )
+
+// testHTTPTransport, when non-nil, overrides the HTTP transport used by the
+// Twilio client. It is set only by tests so they can serve canned API responses
+// without contacting Twilio (no credentials, no billing). It is never set in
+// production code paths.
+var testHTTPTransport http.RoundTripper
 
 const (
 	AccountSid    = "TWILIO_ACCOUNT_SID"
@@ -88,6 +96,12 @@ func providerClient(p *schema.Provider) schema.ConfigureContextFunc {
 
 		TwilioClient.SetRegion(region)
 		TwilioClient.SetEdge(edge)
+
+		if testHTTPTransport != nil {
+			if c, ok := TwilioClient.Client.(*twclient.Client); ok {
+				c.HTTPClient = &http.Client{Transport: testHTTPTransport}
+			}
+		}
 
 		config := &twilio.Config{
 			Client: TwilioClient,
