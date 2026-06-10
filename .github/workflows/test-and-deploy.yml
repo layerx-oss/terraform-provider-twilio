@@ -36,11 +36,10 @@ jobs:
       - name: Test
         run: go test ./... -timeout=120s
 
-  # Validates the distribution path that this fork actually relies on:
-  # `make install` into the local filesystem mirror, resolved by Terraform via
-  # source address registry.terraform.io/layerx/twilio. Needs no Twilio secrets,
-  # so it runs on every trigger (including PRs) and guards the mirror layout,
-  # binary name, and source address against regressions.
+  # Validates that `make install` + filesystem mirror resolves the provider correctly.
+  # Useful for local development and as a regression guard for the binary name and
+  # source address. The primary distribution method for end users is the Terraform
+  # Registry (community provider); this job covers the local dev path.
   install-verify:
     name: Install (filesystem mirror) Test
     runs-on: ubuntu-latest
@@ -123,6 +122,13 @@ jobs:
         with:
           go-version-file: go.mod
 
+      - name: Import GPG key
+        id: import_gpg
+        uses: crazy-max/ghaction-import-gpg@v6
+        with:
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.PASSPHRASE }}
+
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v6
         with:
@@ -130,3 +136,4 @@ jobs:
           args: release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GPG_FINGERPRINT: ${{ steps.import_gpg.outputs.fingerprint }}
